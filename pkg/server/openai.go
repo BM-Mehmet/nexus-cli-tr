@@ -84,9 +84,9 @@ func formatMessages(messages []deepseek.ChatMessage, tools []interface{}) (promp
 	if len(tools) > 0 {
 		toolBytes, err := json.MarshalIndent(tools, "", "  ")
 		if err == nil {
-			sysBuilder.WriteString("\n[Available Tools]:\n")
+			sysBuilder.WriteString("\n[Kullanılabilir araçlar]:\n")
 			sysBuilder.WriteString(string(toolBytes))
-			sysBuilder.WriteString("\nIf you need to call a tool, you may output using either standard DeepSeek format (<｜｜DSML｜｜ calls><｜｜DSML｜｜ invoke name=\"tool_name\"><｜｜DSML｜｜ parameter name=\"param\" string=\"true\">value</｜｜DSML｜｜ parameter></｜｜DSML｜｜ invoke></｜｜DSML｜｜ calls>) or a JSON object: {\"tool_calls\": [{\"name\": \"tool_name\", \"arguments\": {...}}]}\n")
+			sysBuilder.WriteString("\nBir aracı çağırmanız gerekirse standart DeepSeek biçimini (<｜｜DSML｜｜ calls><｜｜DSML｜｜ invoke name=\"tool_name\"><｜｜DSML｜｜ parameter name=\"param\" string=\"true\">value</｜｜DSML｜｜ parameter></｜｜DSML｜｜ invoke></｜｜DSML｜｜ calls>) veya şu JSON nesnesini kullanabilirsiniz: {\"tool_calls\": [{\"name\": \"tool_name\", \"arguments\": {...}}]}\n")
 		}
 	}
 
@@ -96,24 +96,24 @@ func formatMessages(messages []deepseek.ChatMessage, tools []interface{}) (promp
 			continue
 		}
 		if m.Role == "user" && m.Content != "" {
-			convBuilder.WriteString(fmt.Sprintf("User: %s\n\n", m.Content))
+			convBuilder.WriteString(fmt.Sprintf("Kullanıcı: %s\n\n", m.Content))
 		} else if m.Role == "assistant" {
 			if len(m.ToolCalls) > 0 {
 				for _, tc := range m.ToolCalls {
-					convBuilder.WriteString(fmt.Sprintf("Assistant: TOOL_CALL: %s\narguments: %s\n\n", tc.Function.Name, tc.Function.Arguments))
+					convBuilder.WriteString(fmt.Sprintf("Asistan: TOOL_CALL: %s\nargümanlar: %s\n\n", tc.Function.Name, tc.Function.Arguments))
 				}
 			} else if m.Content != "" {
-				convBuilder.WriteString(fmt.Sprintf("Assistant: %s\n\n", m.Content))
+				convBuilder.WriteString(fmt.Sprintf("Asistan: %s\n\n", m.Content))
 			}
 		} else if m.Role == "tool" && m.Content != "" {
-			convBuilder.WriteString(fmt.Sprintf("[Tool Result]:\n%s\n\n", m.Content))
+			convBuilder.WriteString(fmt.Sprintf("[Araç sonucu]:\n%s\n\n", m.Content))
 		}
 	}
 
 	p := strings.TrimSpace(convBuilder.String())
 	s := strings.TrimSpace(sysBuilder.String())
 	if s != "" {
-		p = fmt.Sprintf("[Instructions]:\n%s\n\n%s", s, p)
+		p = fmt.Sprintf("[Talimatlar]:\n%s\n\n%s", s, p)
 	}
 
 	return p, s
@@ -131,7 +131,7 @@ func (s *Server) handleOpenAIChatCompletions(w http.ResponseWriter, r *http.Requ
 
 	if lastUserMsg == "/new" {
 		s.sessionMgr.Reset(agentID)
-		msg := "Started a new chat. Session and history have been reset."
+		msg := "Yeni sohbet başlatıldı. Oturum ve geçmiş sıfırlandı."
 		if req.Stream {
 			w.Header().Set("Content-Type", "text/event-stream")
 			w.Header().Set("Cache-Control", "no-cache")
@@ -185,7 +185,7 @@ func (s *Server) handleOpenAIChatCompletions(w http.ResponseWriter, r *http.Requ
 		prompt += BuildJSONInstruction(req.ResponseFormat)
 	}
 	if prompt == "" {
-		http.Error(w, `{"error":{"message":"Prompt bo'sh bo'lmasligi kerak","type":"invalid_request_error"}}`, http.StatusBadRequest)
+		http.Error(w, `{"error":{"message":"İstem boş olamaz","type":"invalid_request_error"}}`, http.StatusBadRequest)
 		return
 	}
 
@@ -198,7 +198,7 @@ func (s *Server) handleOpenAIChatCompletions(w http.ResponseWriter, r *http.Requ
 		w.Header().Set("Connection", "keep-alive")
 		flusher, ok := w.(http.Flusher)
 		if !ok {
-			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			http.Error(w, "Akış yanıtı desteklenmiyor", http.StatusInternalServerError)
 			return
 		}
 

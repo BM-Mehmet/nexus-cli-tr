@@ -23,7 +23,7 @@ type AnthropicRequest struct {
 func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request, rawBody []byte, agentID string) {
 	var req AnthropicRequest
 	if err := json.Unmarshal(rawBody, &req); err != nil {
-		http.Error(w, `{"error":{"type":"invalid_request_error","message":"Invalid JSON payload"}}`, http.StatusBadRequest)
+		http.Error(w, `{"error":{"type":"invalid_request_error","message":"JSON içeriği geçersiz"}}`, http.StatusBadRequest)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request,
 	}
 	modelCfg := deepseek.ResolveModelConfig(modelToUse)
 
-	identityPrompt := fmt.Sprintf("You are %s (%s), powering Claude Code CLI via Nexus-CLI bridge. When asked about your model or identity, you should state that you are DeepSeek (%s) running through Nexus-CLI.", modelCfg.ID, modelCfg.RealModel, modelCfg.RealModel)
+	identityPrompt := fmt.Sprintf("Nexus-CLI köprüsü üzerinden Claude Code CLI'ye güç veren %s (%s) modelisin. Modelin veya kimliğin sorulduğunda, Nexus-CLI üzerinden çalışan DeepSeek (%s) olduğunu belirt.", modelCfg.ID, modelCfg.RealModel, modelCfg.RealModel)
 	if systemPrompt != "" {
 		systemPrompt = identityPrompt + "\n\n" + systemPrompt
 	} else {
@@ -112,7 +112,7 @@ func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request,
 								}
 							}
 						}
-						sb.WriteString(fmt.Sprintf("\n[Tool Result (%s, status: %s)]:\n%s\n", toolID, status, strings.TrimSpace(resContent)))
+						sb.WriteString(fmt.Sprintf("\n[Araç sonucu (%s, durum: %s)]:\n%s\n", toolID, status, strings.TrimSpace(resContent)))
 					case "tool_use":
 						tName, _ := bMap["name"].(string)
 						tID, _ := bMap["id"].(string)
@@ -150,14 +150,14 @@ func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request,
 		session = s.sessionMgr.GetOrCreate(agentID)
 		session.ModelOverride = savedOverride
 
-		responseText := "🔄 **Yangi suhbat boshlandi.** Oldingi suhbat tarixi va konteksti tozalandi."
+		responseText := "🔄 **Yeni sohbet başlatıldı.** Önceki sohbet geçmişi ve bağlamı temizlendi."
 		s.sendImmediateAnthropicResponse(w, r, req.Stream, msgID, modelCfg.ID, responseText)
 		return
 	}
 
 	// Handle /model or /models status command
 	if lastUserMsg == "/model" || lastUserMsg == "/models" {
-		responseText := fmt.Sprintf("🤖 **Joriy faol model:** `%s` (%s)\n\n📋 **Mavjud DeepSeek modellari:**\n  • `deepseek-reasoner` (qisqacha: `r1`, `sonnet`, `opus`) — DeepSeek R1 Thinking\n  • `deepseek-chat` (qisqacha: `v3`, `haiku`) — DeepSeek V3 Tezkor Chat\n  • `deepseek-reasoner-search` — R1 Thinking + Veb Qidiruv\n  • `deepseek-chat-search` — V3 + Veb Qidiruv\n\n💡 **Modelni o'zgartirish uchun:**\n`/model <nomi>` (masalan: `/model deepseek-chat` yoki `/model r1`)", modelCfg.ID, modelCfg.RealModel)
+		responseText := fmt.Sprintf("🤖 **Etkin model:** `%s` (%s)\n\n📋 **Kullanılabilir DeepSeek modelleri:**\n  • `deepseek-reasoner` (kısa adlar: `r1`, `sonnet`, `opus`) — DeepSeek R1 akıl yürütme\n  • `deepseek-chat` (kısa adlar: `v3`, `haiku`) — DeepSeek V3 hızlı sohbet\n  • `deepseek-reasoner-search` — R1 akıl yürütme + web araması\n  • `deepseek-chat-search` — V3 + web araması\n\n💡 **Modeli değiştirmek için:**\n`/model <ad>` (ör. `/model deepseek-chat` veya `/model r1`)", modelCfg.ID, modelCfg.RealModel)
 		s.sendImmediateAnthropicResponse(w, r, req.Stream, msgID, modelCfg.ID, responseText)
 		return
 	}
@@ -168,7 +168,7 @@ func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request,
 		newCfg := deepseek.ResolveModelConfig(targetName)
 		session.ModelOverride = newCfg.ID
 
-		responseText := fmt.Sprintf("✅ **Model muvaffaqiyatli almashtirildi!**\n\nYangi faol model: `%s` (%s).\nBundan keyingi barcha so'rovlar ushbu model yordamida bajariladi.", newCfg.ID, newCfg.RealModel)
+		responseText := fmt.Sprintf("✅ **Model değiştirildi!**\n\nYeni etkin model: `%s` (%s).\nBundan sonraki tüm istekler bu modelle yanıtlanacak.", newCfg.ID, newCfg.RealModel)
 		s.sendImmediateAnthropicResponse(w, r, req.Stream, msgID, newCfg.ID, responseText)
 		return
 	}
@@ -179,7 +179,7 @@ func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request,
 		w.Header().Set("Connection", "keep-alive")
 		flusher, ok := w.(http.Flusher)
 		if !ok {
-			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			http.Error(w, "Akış yanıtı desteklenmiyor", http.StatusInternalServerError)
 			return
 		}
 
@@ -423,7 +423,7 @@ func (s *Server) sendImmediateAnthropicResponse(w http.ResponseWriter, r *http.R
 		w.Header().Set("Connection", "keep-alive")
 		flusher, ok := w.(http.Flusher)
 		if !ok {
-			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			http.Error(w, "Akış yanıtı desteklenmiyor", http.StatusInternalServerError)
 			return
 		}
 

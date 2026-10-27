@@ -10,7 +10,7 @@ import (
 
 // RunDoctor performs end-to-end diagnostics on DeepSeek API connectivity, auth, and PoW.
 func RunDoctor(ctx context.Context, client *deepseek.Client) error {
-	fmt.Printf("%s%s=== Nexus-CLI / DeepSeek Diagnostika (Doctor) ===%s\n\n", BrightCyan, Bold, Reset)
+	fmt.Printf("%s%s=== Nexus-CLI / DeepSeek Tanılama ===%s\n\n", BrightCyan, Bold, Reset)
 
 	allOK := true
 
@@ -19,30 +19,30 @@ func RunDoctor(ctx context.Context, client *deepseek.Client) error {
 	token := auth.GetToken()
 	data := auth.GetData()
 
-	fmt.Print("[1/4] Autentifikatsiya tokeni tekshirilmoqda: ")
+	fmt.Print("[1/4] Kimlik doğrulama belirteci denetleniyor: ")
 	if token == "" {
-		fmt.Printf("%s❌ Token topilmadi!%s\n", Red, Reset)
-		fmt.Println("      Qanday to'g'irlash kerak:")
-		fmt.Println("      1. 'nexus auth login' buyrug'ini ishga tushiring")
-		fmt.Println("      2. Yoki .env fayliga DEEPSEEK_TOKEN=sizning_tokeningiz deb yozing")
+		fmt.Printf("%s❌ Belirteç bulunamadı!%s\n", Red, Reset)
+		fmt.Println("      Çözüm:")
+		fmt.Println("      1. 'nexus auth login' komutunu çalıştırın")
+		fmt.Println("      2. Ya da .env dosyasına DEEPSEEK_TOKEN=belirteç_değeriniz yazın")
 		allOK = false
 	} else {
 		masked := token
 		if len(token) > 12 {
 			masked = token[:6] + "..." + token[len(token)-4:]
 		}
-		fmt.Printf("%s✅ Mavjud (%s)%s\n", BrightGreen, masked, Reset)
+		fmt.Printf("%s✅ Mevcut (%s)%s\n", BrightGreen, masked, Reset)
 		if data.Cookie != "" {
-			fmt.Printf("      Cookies: %s✅ Bor (%d belgi)%s\n", Gray, len(data.Cookie), Reset)
+			fmt.Printf("      Çerezler: %s✅ Var (%d karakter)%s\n", Gray, len(data.Cookie), Reset)
 		}
 	}
 
 	// 2. Validate Token via DeepSeek API
-	fmt.Print("[2/4] DeepSeek hisob ma'lumotlari tekshirilmoqda: ")
+	fmt.Print("[2/4] DeepSeek hesap bilgileri doğrulanıyor: ")
 	if token != "" {
 		profile, err := auth.ValidateToken(ctx)
 		if err != nil {
-			fmt.Printf("%s❌ Xatolik (%v)%s\n", Red, err, Reset)
+			fmt.Printf("%s❌ Hata (%v)%s\n", Red, err, Reset)
 			allOK = false
 		} else {
 			name := profile.Nickname
@@ -52,47 +52,47 @@ func RunDoctor(ctx context.Context, client *deepseek.Client) error {
 			if name == "" {
 				name = profile.ID
 			}
-			fmt.Printf("%s✅ Muvaffaqiyatli! Foydalanuvchi: %s (ID: %s)%s\n", BrightGreen, name, profile.ID, Reset)
+			fmt.Printf("%s✅ Başarılı! Kullanıcı: %s (ID: %s)%s\n", BrightGreen, name, profile.ID, Reset)
 		}
 	} else {
-		fmt.Printf("%s⚠️ O'tkazib yuborildi (token yo'q)%s\n", Yellow, Reset)
+		fmt.Printf("%s⚠️ Atlandı (belirteç yok)%s\n", Yellow, Reset)
 	}
 
 	// 3. PoW Challenge & Solver Speed
-	fmt.Print("[3/4] PoW (Proof-of-Work) challenge va Keccak tezligi: ")
+	fmt.Print("[3/4] PoW (iş kanıtı) sınaması ve Keccak hızı: ")
 	if token != "" {
 		start := time.Now()
 		powResp, err := client.RequestAndSolvePoW(ctx, "/api/v0/chat/completion")
 		duration := time.Since(start)
 		if err != nil {
-			fmt.Printf("%s❌ PoW hal qilinmadi (%v)%s\n", Red, err, Reset)
+			fmt.Printf("%s❌ PoW çözülemedi (%v)%s\n", Red, err, Reset)
 			allOK = false
 		} else {
-			fmt.Printf("%s✅ Muvaffaqiyatli! Hal qilish vaqti: %v (B64 len: %d)%s\n", BrightGreen, duration, len(powResp), Reset)
+			fmt.Printf("%s✅ Başarılı! Çözüm süresi: %v (B64 uzunluğu: %d)%s\n", BrightGreen, duration, len(powResp), Reset)
 		}
 	} else {
-		fmt.Printf("%s⚠️ O'tkazib yuborildi%s\n", Yellow, Reset)
+		fmt.Printf("%s⚠️ Atlandı%s\n", Yellow, Reset)
 	}
 
 	// 4. Session Creation
-	fmt.Print("[4/4] Chat sessiyasi yaratish (/api/v0/chat_session/create): ")
+	fmt.Print("[4/4] Sohbet oturumu oluşturuluyor (/api/v0/chat_session/create): ")
 	if token != "" {
 		sessionID, err := client.CreateSession(ctx)
 		if err != nil {
-			fmt.Printf("%s❌ Sessiya yaratilmadi (%v)%s\n", Red, err, Reset)
+			fmt.Printf("%s❌ Oturum oluşturulamadı (%v)%s\n", Red, err, Reset)
 			allOK = false
 		} else {
-			fmt.Printf("%s✅ Sessiya yaratildi (ID: %s)%s\n", BrightGreen, sessionID, Reset)
+			fmt.Printf("%s✅ Oturum oluşturuldu (ID: %s)%s\n", BrightGreen, sessionID, Reset)
 		}
 	} else {
-		fmt.Printf("%s⚠️ O'tkazib yuborildi%s\n", Yellow, Reset)
+		fmt.Printf("%s⚠️ Atlandı%s\n", Yellow, Reset)
 	}
 
 	fmt.Println()
 	if allOK {
-		fmt.Printf("%s🎉 Barcha testlar muvaffaqiyatli o'tdi! Dastur ishlashga to'liq tayyor.%s\n", BrightGreen, Reset)
+		fmt.Printf("%s🎉 Tüm denetimler başarılı! Program kullanıma hazır.%s\n", BrightGreen, Reset)
 	} else {
-		fmt.Printf("%s⚠️ Ba'zi testlarda xatolik aniqlandi. Yuqoridagi ko'rsatmalarga qarang.%s\n", Yellow, Reset)
+		fmt.Printf("%s⚠️ Bazı denetimlerde hata bulundu. Yukarıdaki yönergeleri inceleyin.%s\n", Yellow, Reset)
 	}
 
 	return nil

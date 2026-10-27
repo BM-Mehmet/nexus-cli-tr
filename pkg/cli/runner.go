@@ -28,12 +28,12 @@ func RunSinglePrompt(ctx context.Context, client *deepseek.Client, prompt string
 
 	prompt = strings.TrimSpace(prompt)
 	if prompt == "" {
-		return fmt.Errorf("prompt kiritilmadi")
+		return fmt.Errorf("istem girilmedi")
 	}
 
 	isJSON := strings.EqualFold(strings.TrimSpace(format), "json")
 	if isJSON {
-		prompt += "\n\n[CRITICAL OUTPUT REQUIREMENT]: Respond ONLY with valid, raw JSON. Do NOT wrap in markdown code blocks like ```json ... ```. No preamble or explanations outside the JSON."
+		prompt += "\n\n[ZORUNLU ÇIKTI]: Yalnızca geçerli, ham JSON yanıtı verin. Yanıtı ```json ... ``` gibi Markdown kod bloklarına almayın. JSON dışında önsöz veya açıklama eklemeyin."
 	}
 
 	cfg := deepseek.ResolveModelConfig(model)
@@ -44,7 +44,7 @@ func RunSinglePrompt(ctx context.Context, client *deepseek.Client, prompt string
 		cfg.SearchEnabled = true
 	}
 
-	spinner := NewSpinner("DeepSeek PoW hisoblanmoqda va serverga ulanmoqda...")
+	spinner := NewSpinner("DeepSeek PoW hesaplanıyor ve sunucuya bağlanılıyor...")
 	isTerminal := (stat.Mode() & os.ModeCharDevice) != 0
 	if isTerminal {
 		spinner.Start()
@@ -111,7 +111,7 @@ func RunSinglePrompt(ctx context.Context, client *deepseek.Client, prompt string
 			if chunk.ReasoningContent != "" {
 				if isTerminal {
 					if !hasThinkingHeader {
-						fmt.Fprintf(os.Stderr, "%s💭 Fikrlash jarayoni (Thinking):%s\n%s%s", Cyan, Reset, Gray, Italic)
+						fmt.Fprintf(os.Stderr, "%s💭 Akıl yürütme:%s\n%s%s", Cyan, Reset, Gray, Italic)
 						hasThinkingHeader = true
 						inThinking = true
 					}

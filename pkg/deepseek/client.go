@@ -179,7 +179,7 @@ func (c *Client) createSessionInternal(ctx context.Context, isRetry bool) (strin
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("create_session so'rovi amalga oshmadi: %w", err)
+		return "", fmt.Errorf("oturum oluşturma isteği başarısız oldu: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -203,7 +203,7 @@ func (c *Client) createSessionInternal(ctx context.Context, isRetry bool) (strin
 				return c.createSessionInternal(ctx, true)
 			}
 		}
-		return "", fmt.Errorf("chat_session/create xatoligi (HTTP %d): %s", resp.StatusCode, string(bodyBytes[:min(len(bodyBytes), 200)]))
+		return "", fmt.Errorf("chat_session/create hatası (HTTP %d): %s", resp.StatusCode, string(bodyBytes[:min(len(bodyBytes), 200)]))
 	}
 
 	var res struct {
@@ -220,7 +220,7 @@ func (c *Client) createSessionInternal(ctx context.Context, isRetry bool) (strin
 	}
 
 	if err := json.Unmarshal(bodyBytes, &res); err != nil {
-		return "", fmt.Errorf("kutilmagan session javobi: %w", err)
+		return "", fmt.Errorf("beklenmeyen oturum yanıtı: %w", err)
 	}
 
 	if res.Code != 0 {
@@ -238,7 +238,7 @@ func (c *Client) createSessionInternal(ctx context.Context, isRetry bool) (strin
 				return c.createSessionInternal(ctx, true)
 			}
 		}
-		return "", fmt.Errorf("chat sessiyasi yaratilmadi (%d): %s", res.Code, res.Msg)
+		return "", fmt.Errorf("sohbet oturumu oluşturulamadı (%d): %s", res.Code, res.Msg)
 	}
 
 	sID := res.Data.BizData.ChatSession.ID
@@ -273,7 +273,7 @@ func (c *Client) RequestAndSolvePoW(ctx context.Context, targetPath string) (str
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("create_pow_challenge ulanish xatoligi: %w", err)
+		return "", fmt.Errorf("PoW sınaması oluşturulurken bağlantı hatası: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -283,7 +283,7 @@ func (c *Client) RequestAndSolvePoW(ctx context.Context, targetPath string) (str
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("create_pow_challenge HTTP xatosi (%d): %s", resp.StatusCode, string(bodyBytes[:min(len(bodyBytes), 200)]))
+		return "", fmt.Errorf("PoW sınaması oluşturulurken HTTP hatası (%d): %s", resp.StatusCode, string(bodyBytes[:min(len(bodyBytes), 200)]))
 	}
 
 	var res struct {
@@ -295,11 +295,11 @@ func (c *Client) RequestAndSolvePoW(ctx context.Context, targetPath string) (str
 	}
 
 	if err := json.Unmarshal(bodyBytes, &res); err != nil {
-		return "", fmt.Errorf("PoW javobini o'qib bo'lmadi: %w", err)
+		return "", fmt.Errorf("PoW yanıtı okunamadı: %w", err)
 	}
 
 	if res.Code != 0 {
-		return "", fmt.Errorf("PoW challenge olinmadi (%d): %s", res.Code, res.Msg)
+		return "", fmt.Errorf("PoW sınaması alınamadı (%d): %s", res.Code, res.Msg)
 	}
 
 	targetMap := res.Data.BizData
@@ -383,14 +383,14 @@ func (c *Client) executeChatStream(ctx context.Context, req ChatStreamRequest, c
 		var err error
 		sessionID, err = c.CreateSession(ctx)
 		if err != nil {
-			return fmt.Errorf("sessiya yaratishda xatolik: %w", err)
+		return fmt.Errorf("oturum oluşturma hatası: %w", err)
 		}
 	}
 
 	// 1. Solve PoW Challenge
 	powHeader, err := c.RequestAndSolvePoW(ctx, "/api/v0/chat/completion")
 	if err != nil {
-		return fmt.Errorf("PoW hal qilishda xatolik: %w", err)
+		return fmt.Errorf("PoW çözme hatası: %w", err)
 	}
 
 	// 2. Resolve Model Configuration
@@ -437,7 +437,7 @@ func (c *Client) executeChatStream(ctx context.Context, req ChatStreamRequest, c
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
-		return fmt.Errorf("chat completion ulanish xatosi: %w", err)
+		return fmt.Errorf("sohbet tamamlama bağlantı hatası: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -470,7 +470,12 @@ func (c *Client) executeChatStream(ctx context.Context, req ChatStreamRequest, c
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("DeepSeek xatoligi (HTTP %d): %s", resp.StatusCode, string(body[:min(len(body), 300)]))
+		if !isRetry && isLengthLimitError(string(body)) {
+			c.ResetSession()
+			req.SessionID = ""
+			return c.executeChatStream(ctx, req, chunkCh, true)
+		}
+		return fmt.Errorf("DeepSeek hatası (HTTP %d): %s", resp.StatusCode, string(body[:min(len(body), 300)]))
 	}
 
 	// Read SSE lines
@@ -486,6 +491,11 @@ func (c *Client) executeChatStream(ctx context.Context, req ChatStreamRequest, c
 		line := scanner.Text()
 		chunk, err := parser.Feed(line)
 		if err != nil {
+			if !isRetry && isLengthLimitError(err.Error()) {
+				c.ResetSession()
+				req.SessionID = ""
+				return c.executeChatStream(ctx, req, chunkCh, true)
+			}
 			return err
 		}
 		if chunk != nil {
@@ -501,7 +511,7 @@ func (c *Client) executeChatStream(ctx context.Context, req ChatStreamRequest, c
 	}
 
 	if err := scanner.Err(); err != nil && !errors.Is(err, io.EOF) {
-		return fmt.Errorf("stream o'qishda xatolik: %w", err)
+		return fmt.Errorf("yanıt akışı okunurken hata: %w", err)
 	}
 
 	if lastMsgID != "" {
@@ -514,6 +524,10 @@ func (c *Client) executeChatStream(ctx context.Context, req ChatStreamRequest, c
 	}
 
 	return nil
+}
+
+func isLengthLimitError(message string) bool {
+	return strings.Contains(strings.ToLower(message), "length limit reached")
 }
 
 // Chat executes a synchronous chat completion and aggregates all output.

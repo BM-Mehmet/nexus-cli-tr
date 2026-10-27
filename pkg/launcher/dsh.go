@@ -19,13 +19,13 @@ func LaunchDSH(ctx context.Context, opts Options) error {
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return fmt.Errorf("user home directory not found: %w", err)
+		return fmt.Errorf("kullanıcı ana dizini bulunamadı: %w", err)
 	}
 
 	// 1. Prepare configuration directory ~/.nexus/launch/dsh
 	dshDir := filepath.Join(home, ".nexus", "launch", "dsh")
 	if err := os.MkdirAll(dshDir, 0o755); err != nil {
-		return fmt.Errorf("failed to create dsh config dir: %w", err)
+		return fmt.Errorf("dsh yapılandırma dizini oluşturulamadı: %w", err)
 	}
 
 	settingsPath := filepath.Join(dshDir, "settings.yaml")
@@ -49,7 +49,7 @@ llm-pi-ai:
 `, opts.Port)
 
 	if err := os.WriteFile(settingsPath, []byte(settingsContent), 0o644); err != nil {
-		return fmt.Errorf("failed to write dsh settings: %w", err)
+		return fmt.Errorf("dsh ayarları yazılamadı: %w", err)
 	}
 
 	patchContent := fmt.Sprintf(`- id: settings
@@ -58,7 +58,7 @@ llm-pi-ai:
 `, settingsPath)
 
 	if err := os.WriteFile(patchPath, []byte(patchContent), 0o644); err != nil {
-		return fmt.Errorf("failed to write dsh patch: %w", err)
+		return fmt.Errorf("dsh yama dosyası yazılamadı: %w", err)
 	}
 
 	// 2. Ensure local Nexus API server is running
@@ -84,17 +84,17 @@ llm-pi-ai:
 		npxArgs := append([]string{"-y", "@deepseek-ai/dsh@latest", "web", "--patch", patchPath}, opts.ExtraArgs...)
 		cmd = exec.CommandContext(ctx, npxBin, npxArgs...)
 	} else {
-		fmt.Printf("\n%s❌ DeepSeek Harness (dsh) yoki Node.js (npx) topilmadi.%s\n", cli.Red, cli.Reset)
-		fmt.Println("O'rnatish uchun quyidagilarni bajaring:")
-		fmt.Println("  1. Node.js o'rnating: https://nodejs.org/")
-		fmt.Printf("  2. dsh o'rnating:     %snpm install -g @deepseek-ai/dsh@latest%s\n\n", cli.BrightCyan, cli.Reset)
-		return fmt.Errorf("dsh or npx not found in PATH")
+		fmt.Printf("\n%s❌ DeepSeek Harness (dsh) veya Node.js (npx) bulunamadı.%s\n", cli.Red, cli.Reset)
+		fmt.Println("Kurulum adımları:")
+		fmt.Println("  1. Node.js'i kurun: https://nodejs.org/")
+		fmt.Printf("  2. dsh'yi kurun:    %snpm install -g @deepseek-ai/dsh@latest%s\n\n", cli.BrightCyan, cli.Reset)
+		return fmt.Errorf("dsh veya npx çalıştırılabilir dosyası PATH içinde bulunamadı")
 	}
 
-	fmt.Printf("%s⚡ DeepSeek Harness (dsh) ishga tushirilmoqda...%s\n", cli.BrightGreen, cli.Reset)
-	fmt.Printf("  Nexus API URL: http://localhost:%d/v1\n", opts.Port)
-	fmt.Printf("  Model:         deepseek-reasoner\n")
-	fmt.Printf("  Patch file:    %s\n\n", patchPath)
+	fmt.Printf("%s⚡ DeepSeek Harness (dsh) başlatılıyor...%s\n", cli.BrightGreen, cli.Reset)
+	fmt.Printf("  Nexus API adresi: http://localhost:%d/v1\n", opts.Port)
+	fmt.Printf("  Model:            deepseek-reasoner\n")
+	fmt.Printf("  Yama dosyası:  %s\n\n", patchPath)
 
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

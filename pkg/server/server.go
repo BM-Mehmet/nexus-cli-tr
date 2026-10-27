@@ -77,6 +77,11 @@ func NewServer(opts ServerOptions) *Server {
 
 // Start runs the HTTP server.
 func (s *Server) Start() error {
+	return s.StartContext(context.Background())
+}
+
+// StartContext runs the HTTP server until it exits or the context is canceled.
+func (s *Server) StartContext(ctx context.Context) error {
 	addr := fmt.Sprintf("%s:%d", s.host, s.port)
 	mux := http.NewServeMux()
 
@@ -108,14 +113,25 @@ func (s *Server) Start() error {
 		Handler: handler,
 	}
 	s.mu.Unlock()
+	serveDone := make(chan struct{})
+	defer close(serveDone)
+	go func() {
+		select {
+		case <-ctx.Done():
+			shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			_ = s.Shutdown(shutdownCtx)
+		case <-serveDone:
+		}
+	}()
 
-	log.Printf("[Nexus Server] Tinglamoqda: http://%s (Port: %d)", addr, s.port)
+	log.Printf("[Nexus Sunucusu] Dinleniyor: http://%s (Bağlantı noktası: %d)", addr, s.port)
 	if s.pool != nil && s.pool.Count() > 0 {
-		log.Printf("[Nexus Server] Akkauntlar hovuzi: %d ta faol hisob yuklandi (Round-Robin & 429 Failover faol)", s.pool.Count())
+		log.Printf("[Nexus Sunucusu] Hesap havuzu: %d etkin hesap yüklendi (Round-Robin ve 429 yedek geçişi etkin)", s.pool.Count())
 	}
-	log.Printf("[Nexus Server] OpenAI Chat: POST http://localhost:%d/v1/chat/completions", s.port)
-	log.Printf("[Nexus Server] Anthropic Messages (Claude Code): POST http://localhost:%d/v1/messages", s.port)
-	log.Printf("[Nexus Server] Modellarni ko'rish: GET http://localhost:%d/v1/models", s.port)
+	log.Printf("[Nexus Sunucusu] OpenAI sohbeti: POST http://localhost:%d/v1/chat/completions", s.port)
+	log.Printf("[Nexus Sunucusu] Anthropic mesajları (Claude Code): POST http://localhost:%d/v1/messages", s.port)
+	log.Printf("[Nexus Sunucusu] Modelleri listele: GET http://localhost:%d/v1/models", s.port)
 
 	return s.httpServer.ListenAndServe()
 }
@@ -180,7 +196,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":         "ok",
-		"service":        "Nexus-CLI FreeDeepSeek Proxy",
+		"service":        "Nexus-CLI Ücretsiz DeepSeek Proxy",
 		"accounts_count": accountsCount,
 		"time":           time.Now().Format(time.RFC3339),
 	})
@@ -196,7 +212,7 @@ func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleModels(w http.ResponseWriter, r *http.Request) {
 	if !s.isAuthorized(r) {
-		http.Error(w, `{"error":{"message":"Unauthorized","type":"authentication_error"}}`, http.StatusUnauthorized)
+		http.Error(w, `{"error":{"message":"Yetkisiz erişim","type":"authentication_error"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -219,7 +235,7 @@ func (s *Server) handleModels(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleModelCapabilities(w http.ResponseWriter, r *http.Request) {
 	if !s.isAuthorized(r) {
-		http.Error(w, `{"error":{"message":"Unauthorized","type":"authentication_error"}}`, http.StatusUnauthorized)
+		http.Error(w, `{"error":{"message":"Yetkisiz erişim","type":"authentication_error"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -229,7 +245,7 @@ func (s *Server) handleModelCapabilities(w http.ResponseWriter, r *http.Request)
 
 func (s *Server) handleSessions(w http.ResponseWriter, r *http.Request) {
 	if !s.isAuthorized(r) {
-		http.Error(w, `{"error":{"message":"Unauthorized","type":"authentication_error"}}`, http.StatusUnauthorized)
+		http.Error(w, `{"error":{"message":"Yetkisiz erişim","type":"authentication_error"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -239,7 +255,7 @@ func (s *Server) handleSessions(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleResetSession(w http.ResponseWriter, r *http.Request) {
 	if !s.isAuthorized(r) {
-		http.Error(w, `{"error":{"message":"Unauthorized","type":"authentication_error"}}`, http.StatusUnauthorized)
+		http.Error(w, `{"error":{"message":"Yetkisiz erişim","type":"authentication_error"}}`, http.StatusUnauthorized)
 		return
 	}
 
@@ -259,7 +275,7 @@ func (s *Server) handleResetSession(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleDispatch(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Bu HTTP yöntemine izin verilmiyor", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -267,7 +283,7 @@ func (s *Server) handleDispatch(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
-			"error": map[string]string{"message": "Invalid proxy API key", "type": "authentication_error"},
+			"error": map[string]string{"message": "Proxy API anahtarı geçersiz", "type": "authentication_error"},
 		})
 		return
 	}
@@ -281,7 +297,7 @@ func (s *Server) handleDispatch(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Retry-After", "2")
 		w.WriteHeader(http.StatusServiceUnavailable)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
-			"error": map[string]string{"message": "Server busy. Retry shortly.", "type": "overloaded"},
+			"error": map[string]string{"message": "Sunucu meşgul. Biraz sonra yeniden deneyin.", "type": "overloaded"},
 		})
 		return
 	}
@@ -289,7 +305,7 @@ func (s *Server) handleDispatch(w http.ResponseWriter, r *http.Request) {
 	// Read body (limit to 10MB)
 	body, err := io.ReadAll(io.LimitReader(r.Body, 10*1024*1024))
 	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		http.Error(w, "İstek gövdesi okunamadı", http.StatusBadRequest)
 		return
 	}
 
@@ -309,7 +325,7 @@ func (s *Server) handleDispatch(w http.ResponseWriter, r *http.Request) {
 	case "/v1/chat/completions":
 		var req OpenAIRequest
 		if err := json.Unmarshal(body, &req); err != nil {
-			http.Error(w, `{"error":{"message":"Invalid JSON payload","type":"invalid_request_error"}}`, http.StatusBadRequest)
+			http.Error(w, `{"error":{"message":"JSON içeriği geçersiz","type":"invalid_request_error"}}`, http.StatusBadRequest)
 			return
 		}
 		if req.User != "" && agentID == "dev-agent" {

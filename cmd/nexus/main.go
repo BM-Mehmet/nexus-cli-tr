@@ -29,7 +29,7 @@ func main() {
 		if (stat.Mode() & os.ModeCharDevice) == 0 {
 			client := deepseek.NewClient(deepseek.ClientOptions{})
 			if err := cli.RunSinglePrompt(ctx, client, "", deepseek.ModelReasoner, false, false, ""); err != nil {
-				fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+				fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 				os.Exit(1)
 			}
 			return
@@ -39,7 +39,7 @@ func main() {
 		client := deepseek.NewClient(deepseek.ClientOptions{})
 		repl := cli.NewREPL(client, deepseek.ModelReasoner)
 		if err := repl.Run(ctx); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 		return
@@ -68,7 +68,7 @@ func main() {
 		handleModels()
 
 	case "version", "-v", "--version":
-		fmt.Printf("Nexus-CLI versiyasi: %s (DeepSeek Web Bridge for Go)\n", version)
+		fmt.Printf("Nexus-CLI sürümü: %s (Go için DeepSeek Web Köprüsü)\n", version)
 
 	case "help", "-h", "--help":
 		printHelp()
@@ -81,46 +81,46 @@ func main() {
 
 func printHelp() {
 	cli.PrintBanner(os.Stdout)
-	fmt.Print(`Foydalanish:
-  nexus [so'rov]                       Oddiy so'rov yuborish yoki chat boshlash
-  nexus chat [bayroqlar]               Interaktiv suhbat (REPL) rejimini ishga tushirish
-  nexus serve [bayroqlar]              OpenAI / Anthropic mos keluvchi mahalliy API serverni ishga tushirish
-  nexus launch <platforma>             Claude Code, Codex, ChatGPT yoki Harness-ni avtomatik ulash
-  nexus doctor                         Ulanish va PoW sozlamalarini to'liq tekshirish (diagnostika)
-  nexus models                         Mavjud DeepSeek modellari va imkoniyatlarini ko'rish
-  nexus auth <buyruq>                  Autentifikatsiya va ko'p akkauntlar hovuzini boshqarish
+	fmt.Print(`Kullanım:
+  nexus [istem]                        Tek seferlik istek gönder veya sohbet başlat
+  nexus chat [seçenekler]               Etkileşimli sohbeti (REPL) başlat
+  nexus serve [seçenekler]              OpenAI / Anthropic uyumlu yerel API sunucusunu başlat
+  nexus launch <platform>               Claude Code, Codex, ChatGPT veya Harness'i başlat
+  nexus doctor                          Bağlantı ve PoW tanılamasını çalıştır
+  nexus models                          Kullanılabilir DeepSeek modellerini ve özelliklerini göster
+  nexus auth <komut>                    Kimlik doğrulamayı ve hesap havuzunu yönet
 
-Launch Integratsiyalari:
-  nexus launch claude                  Claude Code CLI (DeepSeek R1 / V3 bilan)
-  nexus launch dsh                     Official DeepSeek Harness (@deepseek-ai/dsh CLI)
-  nexus launch codex                   OpenAI Codex CLI (OpenAI Responses wire API)
-  nexus launch opencode                OpenCode CLI (avtomatik config bilan)
-  nexus launch goose                   Block Goose AI Agent (OpenAI API provayderi)
-  nexus launch aider                   Aider Pair Programming CLI (DeepSeek R1 bilan)
-  nexus launch chatgpt                 ChatGPT Desktop ilovasi va mahalliy bridge
-  nexus launch harness                 Nexus Ichki Agentic Eval & Benchmark Harness
-  nexus launch pool                    Ko'p akkauntlar hovuzi monitori
+Başlatıcı tümleştirmeleri:
+  nexus launch claude                  Claude Code CLI (DeepSeek R1 / V3 ile)
+  nexus launch dsh                     DeepSeek Harness (@deepseek-ai/dsh CLI)
+  nexus launch codex                   OpenAI Codex CLI
+  nexus launch opencode                OpenCode CLI (otomatik yapılandırma)
+  nexus launch goose                   Block Goose AI Agent
+  nexus launch aider                   Aider eşli programlama CLI
+  nexus launch chatgpt                 ChatGPT Desktop ve yerel köprü
+  nexus launch harness                 Nexus karşılaştırma aracı
+  nexus launch pool                    Çoklu hesap havuzu izleyicisi
 
-Auth Buyruqlari:
-  nexus auth list                      Mavjud barcha akkauntlar va ularning holati
-  nexus auth add <nomi> [--chrome]     Yangi akkaunt qo'shish (Token orqali yoki avtomatik Chrome)
-  nexus auth switch <nomi>             Birlamchi faol akkauntni almashtirish
-  nexus auth test                      Hovuzdagi barcha akkauntlarni tekshirish
-  nexus auth remove <nomi>             Akkauntni hovuzdan o'chirish
-  nexus auth login                     Birlamchi tokenni qo'lda kiritish
-  nexus auth chrome                    Chrome orqali avtomatik login qilish
-  nexus auth whoami                    Joriy hisob ma'lumotlarini ko'rish
+Kimlik doğrulama komutları:
+  nexus auth list                      Hesapları ve durumlarını listele
+  nexus auth add <ad> [--chrome]       Hesap ekle (belirteçle veya Chrome üzerinden)
+  nexus auth switch <ad>                Etkin hesabı değiştir
+  nexus auth test                      Havuzdaki hesapları doğrula
+  nexus auth remove <ad>                Hesabı havuzdan kaldır
+  nexus auth login                     Belirteci elle gir
+  nexus auth chrome                    Chrome ile oturum aç
+  nexus auth whoami                    Geçerli hesap bilgilerini göster
 
-Bayroqlar (Flags):
-  -m, --model <nom>       Modelni belgilash (default: deepseek-reasoner / R1)
-  -t, --thinking          Fikrlash jarayonini (R1 reasoning) yoqish
-  -s, --search            Veb-qidiruvni yoqish
-  --format <json>         Strukturalangan javob formati (e.g. json)
-  --token <token>         DeepSeek tokenni to'g'ridan-to'g'ri ko'rsatish
-  --accounts-dir <yo'l>   Akkauntlar papkasi (default: ./accounts)
+Seçenekler:
+  -m, --model <ad>         Modeli seç (varsayılan: deepseek-reasoner / R1)
+  -t, --thinking           Akıl yürütmeyi etkinleştir
+  -s, --search             Web aramasını etkinleştir
+  --format <json>          Yapılandırılmış yanıt biçimi
+  --token <belirteç>       DeepSeek belirtecini doğrudan ver
+  --accounts-dir <yol>     Hesap dizini (varsayılan: ./accounts)
 
-Misollar:
-  nexus "Salom, dunyo!"
+Örnekler:
+  nexus "Merhaba, dünya!"
   nexus launch claude
   nexus launch codex
   nexus launch harness
@@ -131,48 +131,48 @@ Misollar:
 
 func handleChat(ctx context.Context, args []string) {
 	fs := flag.NewFlagSet("chat", flag.ExitOnError)
-	model := fs.String("model", deepseek.ModelReasoner, "Model nomi (deepseek-reasoner, deepseek-chat)")
-	fs.StringVar(model, "m", deepseek.ModelReasoner, "Model nomi (qisqa)")
-	token := fs.String("token", "", "Token")
+	model := fs.String("model", deepseek.ModelReasoner, "Model adı (deepseek-reasoner, deepseek-chat)")
+	fs.StringVar(model, "m", deepseek.ModelReasoner, "Model adı (kısa seçenek)")
+	token := fs.String("token", "", "Belirteç")
 	_ = fs.Parse(args)
 
 	client := deepseek.NewClient(deepseek.ClientOptions{Token: *token})
 	repl := cli.NewREPL(client, *model)
 	if err := repl.Run(ctx); err != nil {
-		fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 		os.Exit(1)
 	}
 }
 
 func handleRun(ctx context.Context, args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
-	model := fs.String("model", deepseek.ModelReasoner, "Model nomi")
-	fs.StringVar(model, "m", deepseek.ModelReasoner, "Model nomi (qisqa)")
-	thinking := fs.Bool("thinking", true, "Fikrlash jarayonini yoqish")
-	fs.BoolVar(thinking, "t", true, "Fikrlash jarayonini yoqish (qisqa)")
-	search := fs.Bool("search", false, "Veb-qidiruvni yoqish")
-	fs.BoolVar(search, "s", false, "Veb-qidiruvni yoqish (qisqa)")
-	format := fs.String("format", "", "Javob formati (masalan: json)")
-	token := fs.String("token", "", "DeepSeek token")
+	model := fs.String("model", deepseek.ModelReasoner, "Model adı")
+	fs.StringVar(model, "m", deepseek.ModelReasoner, "Model adı (kısa seçenek)")
+	thinking := fs.Bool("thinking", true, "Akıl yürütmeyi etkinleştir")
+	fs.BoolVar(thinking, "t", true, "Akıl yürütmeyi etkinleştir (kısa seçenek)")
+	search := fs.Bool("search", false, "Web aramasını etkinleştir")
+	fs.BoolVar(search, "s", false, "Web aramasını etkinleştir (kısa seçenek)")
+	format := fs.String("format", "", "Yanıt biçimi (ör. json)")
+	token := fs.String("token", "", "DeepSeek belirteci")
 
 	_ = fs.Parse(args)
 	prompt := strings.Join(fs.Args(), " ")
 
 	client := deepseek.NewClient(deepseek.ClientOptions{Token: *token})
 	if err := cli.RunSinglePrompt(ctx, client, prompt, *model, *thinking, *search, *format); err != nil {
-		fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 		os.Exit(1)
 	}
 }
 
 func handleServe(ctx context.Context, args []string) {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
-	host := fs.String("host", "0.0.0.0", "Tinglash manzili")
-	port := fs.Int("port", 9655, "Tinglash porti")
-	apiKey := fs.String("key", os.Getenv("PROXY_API_KEY"), "Proxy server API kaliti (ixtiyoriy)")
-	maxConcurrent := fs.Int("max-concurrent", 10, "Maksimal bir vaqtdagi so'rovlar soni")
-	token := fs.String("token", "", "DeepSeek hisob tokeni")
-	accountsDir := fs.String("accounts-dir", "", "Akkauntlar papkasi (default: ./accounts)")
+	host := fs.String("host", "0.0.0.0", "Dinleme adresi")
+	port := fs.Int("port", 9655, "Dinleme bağlantı noktası")
+	apiKey := fs.String("key", os.Getenv("PROXY_API_KEY"), "Proxy sunucusu API anahtarı (isteğe bağlı)")
+	maxConcurrent := fs.Int("max-concurrent", 10, "Eşzamanlı en fazla istek sayısı")
+	token := fs.String("token", "", "DeepSeek hesap belirteci")
+	accountsDir := fs.String("accounts-dir", "", "Hesap dizini (varsayılan: ./accounts)")
 	_ = fs.Parse(args)
 
 	client := deepseek.NewClient(deepseek.ClientOptions{Token: *token})
@@ -187,25 +187,28 @@ func handleServe(ctx context.Context, args []string) {
 	})
 
 	cli.PrintBanner(os.Stdout)
-	if err := srv.Start(); err != nil {
-		fmt.Fprintf(os.Stderr, "Server xatosi: %v\n", err)
+	if err := srv.StartContext(ctx); err != nil && ctx.Err() == nil {
+		fmt.Fprintf(os.Stderr, "Sunucu hatası: %v\n", err)
 		os.Exit(1)
+	}
+	if ctx.Err() != nil {
+		fmt.Println("Sunucu durduruldu.")
 	}
 }
 
 func handleAuth(ctx context.Context, args []string) {
 	if len(args) == 0 {
-		fmt.Printf("\n%s%sNexus Autentifikatsiya va Ko'p Akkauntlar Hovuzi%s\n\n", cli.BrightCyan, cli.Bold, cli.Reset)
-		fmt.Println("Foydalanish: nexus auth <buyruq> [argumentlar]")
-		fmt.Println("  nexus auth list                      Mavjud barcha akkauntlar va ularning holati")
-		fmt.Println("  nexus auth add <nomi> [--chrome]     Yangi akkaunt qo'shish (Token yoki avtomatik Chrome)")
-		fmt.Println("  nexus auth switch <nomi>             Birlamchi faol akkauntni almashtirish")
-		fmt.Println("  nexus auth test                      Hovuzdagi barcha akkauntlarni tekshirish")
-		fmt.Println("  nexus auth remove <nomi>             Akkauntni hovuzdan o'chirish")
-		fmt.Println("  nexus auth login                     Birlamchi akkaunt tokenni qo'lda kiritish")
-		fmt.Println("  nexus auth chrome                    Chrome orqali avtomatik login qilish")
-		fmt.Println("  nexus auth whoami                    Joriy faol akkaunt profilini ko'rish")
-		fmt.Println("  nexus auth logout                    Birlamchi hisob ma'lumotlarini o'chirish")
+		fmt.Printf("\n%s%sNexus Kimlik Doğrulama ve Çoklu Hesap Havuzu%s\n\n", cli.BrightCyan, cli.Bold, cli.Reset)
+		fmt.Println("Kullanım: nexus auth <komut> [argümanlar]")
+		fmt.Println("  nexus auth list                      Hesapları ve durumlarını listele")
+		fmt.Println("  nexus auth add <ad> [--chrome]       Hesap ekle (belirteçle veya Chrome üzerinden)")
+		fmt.Println("  nexus auth switch <ad>               Etkin hesabı değiştir")
+		fmt.Println("  nexus auth test                      Havuzdaki tüm hesapları doğrula")
+		fmt.Println("  nexus auth remove <ad>               Hesabı havuzdan kaldır")
+		fmt.Println("  nexus auth login                     Birincil hesap belirtecini elle gir")
+		fmt.Println("  nexus auth chrome                    Chrome ile otomatik oturum aç")
+		fmt.Println("  nexus auth whoami                    Etkin hesap profilini göster")
+		fmt.Println("  nexus auth logout                    Birincil hesap bilgilerini sil")
 		return
 	}
 
@@ -218,14 +221,14 @@ func handleAuth(ctx context.Context, args []string) {
 		accounts := pool.List()
 		activeName := pool.GetActiveAccountName()
 
-		fmt.Printf("\n%s%s=== DEEPSEEK AKKAUNTLAR RO'YXATI ===%s\n", cli.BrightCyan, cli.Bold, cli.Reset)
+		fmt.Printf("\n%s%s=== DEEPSEEK HESAPLARI ===%s\n", cli.BrightCyan, cli.Bold, cli.Reset)
 		if len(accounts) == 0 {
-			fmt.Println("Hozircha hech qanday akkaunt saqlanmagan.")
-			fmt.Printf("Yangi akkaunt qo'shish uchun: %snexus auth add <nomi>%s\n\n", cli.BrightCyan, cli.Reset)
+			fmt.Println("Henüz kayıtlı hesap yok.")
+			fmt.Printf("Hesap eklemek için: %snexus auth add <ad>%s\n\n", cli.BrightCyan, cli.Reset)
 			return
 		}
 
-		fmt.Printf("%-18s %-12s %-12s %-32s %s\n", "AKKAUNT", "HOLATI", "COOLDOWN", "EMAIL / PROFIL", "FAYL")
+		fmt.Printf("%-18s %-12s %-12s %-32s %s\n", "HESAP", "DURUM", "BEKLEME", "E-POSTA / PROFİL", "DOSYA")
 		fmt.Println(strings.Repeat("-", 85))
 
 		for _, acc := range accounts {
@@ -236,17 +239,17 @@ func handleAuth(ctx context.Context, args []string) {
 				nameTag = fmt.Sprintf("  %s", acc.Name)
 			}
 
-			status := fmt.Sprintf("%s✅ Tayyor%s", cli.Green, cli.Reset)
+			status := fmt.Sprintf("%s✅ Hazır%s", cli.Green, cli.Reset)
 			cdSec := acc.CooldownRemaining()
 			cdStr := "-"
 			if cdSec > 0 {
-				status = fmt.Sprintf("%s⏳ Kutish%s", cli.Yellow, cli.Reset)
+				status = fmt.Sprintf("%s⏳ Bekliyor%s", cli.Yellow, cli.Reset)
 				cdStr = fmt.Sprintf("%ds", cdSec)
 			} else if !acc.IsReady() {
-				status = fmt.Sprintf("%s❌ Xato%s", cli.Red, cli.Reset)
+				status = fmt.Sprintf("%s❌ Hata%s", cli.Red, cli.Reset)
 			}
 
-			userEmail := "Noma'lum"
+			userEmail := "Bilinmiyor"
 			if acc.Profile != nil && acc.Profile.Email != "" {
 				userEmail = acc.Profile.Email
 			} else if acc.Data.Token != "" {
@@ -260,15 +263,15 @@ func handleAuth(ctx context.Context, args []string) {
 
 			fmt.Printf("%-28s %-20s %-12s %-32s %s\n", nameTag, status, cdStr, userEmail, filepath.Base(acc.FilePath))
 		}
-		fmt.Printf("\n* belgisi — joriy faol birlamchi akkauntni bildiradi.\n")
-		fmt.Printf("Akkauntni almashtirish: %snexus auth switch <nomi>%s\n", cli.BrightCyan, cli.Reset)
-		fmt.Printf("Yangi akkaunt qo'shish: %snexus auth add <nomi>%s\n\n", cli.BrightCyan, cli.Reset)
+		fmt.Printf("\n* işareti etkin birincil hesabı gösterir.\n")
+		fmt.Printf("Hesabı değiştir: %snexus auth switch <ad>%s\n", cli.BrightCyan, cli.Reset)
+		fmt.Printf("Hesap ekle: %snexus auth add <ad>%s\n\n", cli.BrightCyan, cli.Reset)
 
 	case "add":
 		if len(args) < 2 {
-			fmt.Println("Foydalanish: nexus auth add <akkaunt_nomi> [--chrome]")
-			fmt.Println("Misol:      nexus auth add acc2")
-			fmt.Println("            nexus auth add acc3 --chrome")
+			fmt.Println("Kullanım: nexus auth add <hesap_adı> [--chrome]")
+			fmt.Println("Örnek:    nexus auth add acc2")
+			fmt.Println("          nexus auth add acc3 --chrome")
 			return
 		}
 		name := args[1]
@@ -281,7 +284,7 @@ func handleAuth(ctx context.Context, args []string) {
 
 		pool := deepseek.NewAccountPool("")
 		if useChrome {
-			fmt.Printf("Chrome orqali '%s' nomli yangi akkaunt qo'shilmoqda...\n", name)
+			fmt.Printf("Chrome üzerinden '%s' adlı yeni hesap ekleniyor...\n", name)
 			helper := deepseek.NewChromeAuthHelper(9334, "", "")
 			waitCtx, cancelWait := context.WithCancel(ctx)
 			defer cancelWait()
@@ -289,25 +292,25 @@ func handleAuth(ctx context.Context, args []string) {
 				fmt.Println("[Chrome]", msg)
 			})
 			if err != nil || data == nil || data.Token == "" {
-				fmt.Printf("❌ Chrome orqali olishda xatolik: %v\n", err)
+				fmt.Printf("❌ Chrome üzerinden alma hatası: %v\n", err)
 				return
 			}
 			if err := pool.AddAccount(name, *data); err != nil {
-				fmt.Printf("❌ Akkauntni saqlashda xatolik: %v\n", err)
+				fmt.Printf("❌ Hesap kaydedilemedi: %v\n", err)
 				return
 			}
-			fmt.Printf("✅ '%s' akkaunti muvaffaqiyatli saqlandi!\n", name)
+			fmt.Printf("✅ '%s' hesabı kaydedildi!\n", name)
 		} else {
-			fmt.Printf("'%s' akkaunti uchun DeepSeek userToken (yoki Bearer token)ni kiriting:\n> ", name)
+			fmt.Printf("'%s' hesabının DeepSeek userToken (veya Bearer token) değerini girin:\n> ", name)
 			scanner := bufio.NewScanner(os.Stdin)
 			if scanner.Scan() {
 				tokenInput := strings.TrimSpace(scanner.Text())
 				if tokenInput == "" {
-					fmt.Println("❌ Token kiritilmadi.")
+					fmt.Println("❌ Belirteç girilmedi.")
 					return
 				}
 				cleanTok := deepseek.CleanToken(tokenInput)
-				fmt.Print("DeepSeek Cookie-larini kiriting (ixtiyoriy, agar bo'sh bo'lsa ENTER):\n> ")
+				fmt.Print("DeepSeek çerezlerini girin (isteğe bağlı; boş bırakmak için ENTER):\n> ")
 				var cookieInput string
 				if scanner.Scan() {
 					cookieInput = strings.TrimSpace(scanner.Text())
@@ -317,30 +320,30 @@ func handleAuth(ctx context.Context, args []string) {
 					Cookie: cookieInput,
 				}
 				if err := pool.AddAccount(name, data); err != nil {
-					fmt.Printf("❌ Saqlashda xatolik: %v\n", err)
+					fmt.Printf("❌ Kaydetme hatası: %v\n", err)
 					return
 				}
-				fmt.Printf("✅ '%s' akkaunti saqlandi!\n", name)
+				fmt.Printf("✅ '%s' hesabı kaydedildi!\n", name)
 			}
 		}
 
 	case "switch", "use":
 		if len(args) < 2 {
-			fmt.Println("Foydalanish: nexus auth switch <akkaunt_nomi>")
+			fmt.Println("Kullanım: nexus auth switch <hesap_adı>")
 			return
 		}
 		name := args[1]
 		pool := deepseek.NewAccountPool("")
 		acc, err := pool.SwitchActive(name)
 		if err != nil {
-			fmt.Printf("❌ Xatolik: %v\n", err)
+			fmt.Printf("❌ Hata: %v\n", err)
 			return
 		}
-		fmt.Printf("✅ Faol akkaunt almashtirildi: %s (%s)\n", acc.Name, filepath.Base(acc.FilePath))
+		fmt.Printf("✅ Etkin hesap değiştirildi: %s (%s)\n", acc.Name, filepath.Base(acc.FilePath))
 
 	case "test", "validate":
 		pool := deepseek.NewAccountPool("")
-		fmt.Println("Hovuzdagi akkauntlar tekshirilmoqda...")
+		fmt.Println("Hesap havuzu doğrulanıyor...")
 		pool.ValidateAll(ctx)
 		for _, acc := range pool.List() {
 			if acc.Profile != nil {
@@ -348,39 +351,39 @@ func handleAuth(ctx context.Context, args []string) {
 				if name == "" {
 					name = acc.Profile.Email
 				}
-				fmt.Printf("✅ %-14s: Muvaffaqiyatli bog'langan (%s, %s)\n", acc.Name, name, acc.Profile.Email)
+				fmt.Printf("✅ %-14s: Bağlantı başarılı (%s, %s)\n", acc.Name, name, acc.Profile.Email)
 			} else {
-				fmt.Printf("❌ %-14s: Token yaroqsiz yoki tarmoq xatosi\n", acc.Name)
+				fmt.Printf("❌ %-14s: Belirteç geçersiz veya ağ hatası\n", acc.Name)
 			}
 		}
 
 	case "login", "set":
 		fmt.Println("===========================================================")
-		fmt.Println("       DEEPSEEK AKKAUNTINI BOG'LASH BO'YICHA YO'RIQNOMA    ")
+		fmt.Println("       DEEPSEEK HESABI BAĞLAMA YÖNERGESİ       ")
 		fmt.Println("===========================================================")
-		fmt.Println("1. Brauzerda https://chat.deepseek.com saytiga kiring.")
-		fmt.Println("2. Klaviaturada F12 (yoki Cmd+Option+I) bosing.")
-		fmt.Println("3. Application (yoki Storage) bo'limida Local Storage -> chat.deepseek.com")
-		fmt.Println("   'userToken' qiymatini nusxalang.")
+		fmt.Println("1. Tarayıcıda https://chat.deepseek.com adresini açın.")
+		fmt.Println("2. F12 (veya Cmd+Option+I) tuşlarına basın.")
+		fmt.Println("3. Application (veya Storage) bölümünde Local Storage -> chat.deepseek.com yolunu açın.")
+		fmt.Println("   'userToken' değerini kopyalayın.")
 		fmt.Println("===========================================================")
-		fmt.Print("\nDeepSeek userToken (yoki Bearer token)ni kiriting: ")
+		fmt.Print("\nDeepSeek userToken (veya Bearer token) değerini girin: ")
 
 		scanner := bufio.NewScanner(os.Stdin)
 		if scanner.Scan() {
 			tokenInput := strings.TrimSpace(scanner.Text())
 			if tokenInput == "" {
-				fmt.Println("❌ Token kiritilmadi.")
+				fmt.Println("❌ Belirteç girilmedi.")
 				return
 			}
 			if err := auth.SetToken(tokenInput, true); err != nil {
-				fmt.Printf("❌ Faylga saqlashda xatolik: %v\n", err)
+				fmt.Printf("❌ Dosyaya kaydetme hatası: %v\n", err)
 				return
 			}
 
-			fmt.Println("Tekshirilmoqda...")
+			fmt.Println("Doğrulanıyor...")
 			profile, err := auth.ValidateToken(ctx)
 			if err != nil {
-				fmt.Printf("⚠️ Ogohlantirish: Token saqlandi, lekin server tekshiruvida xatolik: %v\n", err)
+				fmt.Printf("⚠️ Uyarı: Belirteç kaydedildi ancak sunucu doğrulaması başarısız: %v\n", err)
 				return
 			}
 
@@ -388,18 +391,17 @@ func handleAuth(ctx context.Context, args []string) {
 			if name == "" {
 				name = profile.Email
 			}
-			fmt.Printf("✅ Muvaffaqiyatli bog'landi! Xush kelibsiz, %s (ID: %s)!\n", name, profile.ID)
+			fmt.Printf("✅ Hesap bağlandı! Hoş geldiniz, %s (ID: %s)!\n", name, profile.ID)
 		}
 
 	case "chrome":
 		fmt.Println("===========================================================")
-		fmt.Println("       DEEPSEEK CHROME AVTOMATIK AUTENTIFIKATSIYA         ")
+		fmt.Println("       DEEPSEEK CHROME İLE OTOMATİK KİMLİK DOĞRULAMA     ")
 		fmt.Println("===========================================================")
-		fmt.Println("1. Yangi toza Chrome oynasi ochilmoqda...")
-		fmt.Println("2. Ochilgan Chrome oynasida chat.deepseek.com ga kiring (Login).")
-		fmt.Println("3. Tizimga muvaffaqiyatli kirganingizdan so'ng, DeepSeek")
-		fmt.Println("   interfeysida biror qisqa xabar (masalan 'ok') yuboring.")
-		fmt.Println("4. Token avtomatik olinadi (yoki bu yerda ENTER tugmasini bosing).")
+		fmt.Println("1. Yeni ve temiz bir Chrome penceresi açılıyor...")
+		fmt.Println("2. Açılan Chrome penceresinde chat.deepseek.com adresine gidip oturum açın.")
+		fmt.Println("3. Oturum açtıktan sonra DeepSeek arayüzünden kısa bir ileti gönderin (ör. 'ok').")
+		fmt.Println("4. Belirteç otomatik alınır (veya burada ENTER tuşuna basın).")
 		fmt.Println("===========================================================")
 
 		helper := deepseek.NewChromeAuthHelper(9334, "", "")
@@ -421,7 +423,7 @@ func handleAuth(ctx context.Context, args []string) {
 		go func() {
 			select {
 			case <-enterCh:
-				fmt.Println("\n[Chrome] Token tekshirilmoqda...")
+				fmt.Println("\n[Chrome] Belirteç doğrulanıyor...")
 				d, e := helper.TryExtractNow(waitCtx)
 				if e == nil && d != nil && d.Token != "" {
 					data = d
@@ -440,37 +442,37 @@ func handleAuth(ctx context.Context, args []string) {
 		}
 
 		if err != nil && (data == nil || data.Token == "") {
-			fmt.Printf("❌ Chrome orqali autentifikatsiya qilib bo'lmadi: %v\n", err)
+			fmt.Printf("❌ Chrome ile kimlik doğrulanamadı: %v\n", err)
 			return
 		}
 
 		if err := auth.SetAuthData(*data, true); err != nil {
-			fmt.Printf("❌ Saqlashda xatolik: %v\n", err)
+			fmt.Printf("❌ Kaydetme hatası: %v\n", err)
 			return
 		}
 
-		fmt.Println("✅ Token va cookies muvaffaqiyatli saqlandi!")
+		fmt.Println("✅ Belirteç ve çerezler kaydedildi!")
 		profile, err := auth.ValidateToken(ctx)
 		if err == nil && profile != nil {
 			name := profile.Nickname
 			if name == "" {
 				name = profile.Email
 			}
-			fmt.Printf("🎉 Muvaffaqiyatli bog'landi! Xush kelibsiz, %s (ID: %s)\n", name, profile.ID)
+			fmt.Printf("🎉 Hesap bağlandı! Hoş geldiniz, %s (ID: %s)\n", name, profile.ID)
 		}
 
 	case "whoami", "status":
 		token := auth.GetToken()
 		if token == "" {
-			fmt.Println("❌ Token topilmadi. 'nexus auth login' orqali tokenni kiriting.")
+			fmt.Println("❌ Belirteç bulunamadı. Eklemek için 'nexus auth login' komutunu kullanın.")
 			return
 		}
 		profile, err := auth.ValidateToken(ctx)
 		if err != nil {
-			fmt.Printf("❌ Token yaroqsiz yoki muddati o'tgan: %v\n", err)
+			fmt.Printf("❌ Belirteç geçersiz veya süresi dolmuş: %v\n", err)
 			return
 		}
-		fmt.Printf("✅ Bog'langan hisob:\n  ID:       %s\n  Nickname: %s\n  Email:    %s\n  Phone:    %s\n",
+		fmt.Printf("✅ Bağlı hesap:\n  ID:       %s\n  Takma ad: %s\n  E-posta:  %s\n  Telefon:  %s\n",
 			profile.ID, profile.Nickname, profile.Email, profile.Phone)
 
 	case "logout", "remove", "rm":
@@ -478,33 +480,33 @@ func handleAuth(ctx context.Context, args []string) {
 			name := args[1]
 			pool := deepseek.NewAccountPool("")
 			if err := pool.RemoveAccount(name); err != nil {
-				fmt.Printf("❌ O'chirishda xatolik: %v\n", err)
+				fmt.Printf("❌ Silme hatası: %v\n", err)
 				return
 			}
-			fmt.Printf("✅ '%s' akkaunti o'chirildi.\n", name)
+			fmt.Printf("✅ '%s' hesabı kaldırıldı.\n", name)
 			return
 		}
 		_ = auth.Remove()
-		fmt.Println("✅ Hisob ma'lumotlari o'chirildi.")
+		fmt.Println("✅ Hesap bilgileri silindi.")
 
 	default:
-		fmt.Printf("Noma'lum auth buyrug'i: %s. 'nexus auth' deb yozib yordam oling.\n", sub)
+		fmt.Printf("Bilinmeyen auth komutu: %s. Yardım için 'nexus auth' yazın.\n", sub)
 	}
 }
 
 func handleModels() {
-	fmt.Printf("%s%s=== Qo'llab-quvvatlanadigan DeepSeek Modellari ===%s\n\n", cli.BrightCyan, cli.Bold, cli.Reset)
+	fmt.Printf("%s%s=== DESTEKLENEN DEEPSEEK MODELLERİ ===%s\n\n", cli.BrightCyan, cli.Bold, cli.Reset)
 	for id, cfg := range deepseek.ModelConfigs {
-		reasoning := "yo'q"
+		reasoning := "hayır"
 		if cfg.Capabilities.Reasoning {
-			reasoning = "ha (R1)"
+			reasoning = "evet (R1)"
 		}
-		search := "yo'q"
+		search := "hayır"
 		if cfg.Capabilities.WebSearch {
-			search = "ha"
+			search = "evet"
 		}
 		fmt.Printf("  • %s%-24s%s -> %s\n", cli.Bold, id, cli.Reset, cfg.RealModel)
-		fmt.Printf("    Fikrlash: %s | Veb-qidiruv: %s\n\n", reasoning, search)
+		fmt.Printf("    Akıl yürütme: %s | Web araması: %s\n\n", reasoning, search)
 	}
 }
 
@@ -546,51 +548,51 @@ func handleLaunch(ctx context.Context, args []string) {
 	switch target {
 	case "claude", "claude-code":
 		if err := launcher.LaunchClaude(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	case "dsh", "deepseek-harness":
 		if err := launcher.LaunchDSH(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	case "codex":
 		if err := launcher.LaunchCodexDirect(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	case "opencode":
 		if err := launcher.LaunchOpenCode(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	case "goose":
 		if err := launcher.LaunchGoose(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	case "aider":
 		if err := launcher.LaunchAider(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	case "pool":
 		if err := launcher.LaunchPool(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	case "chatgpt", "chatgpt-desktop":
 		if err := launcher.LaunchChatGPT(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	case "harness", "bench", "test-harness":
 		if err := launcher.LaunchHarness(ctx, opts); err != nil {
-			fmt.Fprintf(os.Stderr, "Xatolik: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Hata: %v\n", err)
 			os.Exit(1)
 		}
 	default:
-		fmt.Printf("Noma'lum launcher platformasi: '%s'.\n", target)
+		fmt.Printf("Bilinmeyen başlatıcı platformu: '%s'.\n", target)
 		launcher.PrintLaunchMenu(os.Stdout)
 	}
 }

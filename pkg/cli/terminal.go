@@ -96,15 +96,16 @@ func (s *Spinner) Stop() {
 	s.wg.Wait()
 }
 
-// PrintBanner prints the Nexus logo and version banner.
+// PrintBanner prints the Nexus CLI TR logo and version banner.
 func PrintBanner(w io.Writer) {
 	banner := fmt.Sprintf(`%s%s
-    _   __                     ________    ____
-   / | / /__  _  ____  _______/ ____/ /   /  _/
-  /  |/ / _ \| |/_/ / / / ___/ /   / /    / /  
- / /|  /  __/>  </ /_/ (__  ) /___/ /____/ /   
-/_/ |_/\___/_/|_|\__,_/____/\____/_____/___/   
-%s%s   ⚡ DeepSeek V3 & R1 Web Bridge CLI for Golang %s
+    _   __                     ________    ____   _____ ____ 
+   / | / /__  _  ____  _______/ ____/ /   /  _/  |_   _|  _ \ 
+  /  |/ / _ \| |/_/ / / / ___/ /   / /    / /      | | | |_) |
+ / /|  /  __/>  </ /_/ (__  ) /___/ /____/ /       | | |  _ < 
+/_/ |_/\___/_/|_|\__,_/____/\____/_____/___/       |_| |_| \_\
+
+%s%s   ⚡ Nexus CLI TR — DeepSeek V3 & R1 Web Bridge CLI for Golang %s
 `, BrightCyan, Bold, Reset, Gray, Reset)
 	fmt.Fprintln(w, banner)
 }

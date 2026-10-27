@@ -99,7 +99,7 @@ func keccakF(A *[25]uint64, roundConstants []uint64) {
 // DeepSeekHashV1 computes the SHA3-256 padding + Keccak-f[1600] rounds 1..23 hash.
 func DeepSeekHashV1(data []byte) (string, error) {
 	if len(data) >= sha3Rate {
-		return "", errors.New("DeepSeekHashV1 input too long for single-block hashing")
+		return "", errors.New("DeepSeekHashV1 girdisi tek bloklu karma için çok uzun")
 	}
 
 	var block [sha3Rate]byte
@@ -147,7 +147,7 @@ type PowSolution struct {
 // SolvePoW solves a DeepSeek PoW challenge using multi-core parallel search.
 func SolvePoW(challenge PowChallenge) (string, error) {
 	if challenge.Algorithm != "DeepSeekHashV1" {
-		return "", fmt.Errorf("unsupported PoW algorithm: %s", challenge.Algorithm)
+		return "", fmt.Errorf("desteklenmeyen PoW algoritması: %s", challenge.Algorithm)
 	}
 
 	target := strings.ToLower(challenge.Challenge)
@@ -207,7 +207,7 @@ func SolvePoW(challenge PowChallenge) (string, error) {
 	wg.Wait()
 
 	if foundAnswer == -1 {
-		return "", errors.New("PoW solution not found within difficulty limit")
+		return "", errors.New("zorluk sınırı içinde PoW çözümü bulunamadı")
 	}
 
 	sol := PowSolution{
@@ -221,7 +221,7 @@ func SolvePoW(challenge PowChallenge) (string, error) {
 
 	jsonBytes, err := json.Marshal(sol)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal pow solution: %w", err)
+		return "", fmt.Errorf("PoW çözümü serileştirilemedi: %w", err)
 	}
 
 	return base64.StdEncoding.EncodeToString(jsonBytes), nil

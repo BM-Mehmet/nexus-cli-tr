@@ -238,7 +238,7 @@ func (m *AuthManager) Remove() error {
 // ValidateToken verifies the token against /api/v0/users/current.
 func (m *AuthManager) ValidateToken(ctx context.Context) (*UserProfile, error) {
 	if m.data.Token == "" {
-		return nil, errors.New("token kiritilmagan. Iltimos 'nexus auth login' orqali tokenni kiriting")
+		return nil, errors.New("belirteç girilmedi. Lütfen 'nexus auth login' komutuyla belirteç girin")
 	}
 
 	baseURL := m.data.BaseURL
@@ -272,12 +272,12 @@ func (m *AuthManager) ValidateToken(ctx context.Context) (*UserProfile, error) {
 
 	resp, err := m.client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("serverga ulanib bo'lmadi: %w", err)
+		return nil, fmt.Errorf("sunucuya bağlanılamadı: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 401 || resp.StatusCode == 403 {
-		return nil, errors.New("DeepSeek token muddati o'tgan yoki yaroqsiz (HTTP 401/403)")
+		return nil, errors.New("DeepSeek belirtecinin süresi dolmuş veya belirteç geçersiz (HTTP 401/403)")
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -294,11 +294,11 @@ func (m *AuthManager) ValidateToken(ctx context.Context) (*UserProfile, error) {
 	}
 
 	if err := json.Unmarshal(body, &res); err != nil {
-		return nil, fmt.Errorf("kutilmagan javob: %s", string(body[:min(len(body), 200)]))
+		return nil, fmt.Errorf("beklenmeyen yanıt: %s", string(body[:min(len(body), 200)]))
 	}
 
 	if res.Code != 0 {
-		return nil, fmt.Errorf("autentifikatsiya xatosi (%d): %s", res.Code, res.Msg)
+		return nil, fmt.Errorf("kimlik doğrulama hatası (%d): %s", res.Code, res.Msg)
 	}
 
 	biz := res.Data.BizData

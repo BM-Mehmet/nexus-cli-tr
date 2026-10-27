@@ -9,7 +9,6 @@ import (
 
 	"nexus-cli/pkg/deepseek"
 )
-
 // REPL manages interactive terminal chat sessions.
 type REPL struct {
 	client          *deepseek.Client
@@ -46,16 +45,16 @@ func (r *REPL) Run(ctx context.Context) error {
 		if userLabel == "" {
 			userLabel = profile.Phone
 		}
-		fmt.Printf("%s Foydalanuvchi:%s %s%s%s\n", Gray, Reset, BrightGreen, userLabel, Reset)
+		fmt.Printf("%s Kullanıcı:%s %s%s%s\n", Gray, Reset, BrightGreen, userLabel, Reset)
 	} else {
-		fmt.Printf("%s Ogohlantirish: Token tekshirilmadi. 'nexus auth login' orqali tokenni yangilang.%s\n", Yellow, Reset)
+		fmt.Printf("%s Uyarı: Belirteç doğrulanamadı. Yenilemek için 'nexus auth login' komutunu kullanın.%s\n", Yellow, Reset)
 	}
 
-	fmt.Printf("%s Model:%s %s%s%s (Fikrlash: %s, Qidiruv: %s)\n",
+	fmt.Printf("%s Model:%s %s%s%s (Akıl yürütme: %s, Arama: %s)\n",
 		Gray, Reset, BrightCyan, r.model, Reset,
 		boolLabel(r.thinkingEnabled), boolLabel(r.searchEnabled),
 	)
-	fmt.Printf("%s Yordam uchun %s/help%s yozing, chiqish uchun %s/exit%s.%s\n\n", Gray, Bold, Reset, Bold, Reset, Gray)
+	fmt.Printf("%s Yardım için %s/help%s, çıkmak için %s/exit%s yazın.%s\n\n", Gray, Bold, Reset, Bold, Reset, Gray)
 
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -81,7 +80,7 @@ func (r *REPL) Run(ctx context.Context) error {
 		fmt.Println()
 	}
 
-	fmt.Printf("\n%sXayr!%s\n", Gray, Reset)
+	fmt.Printf("\n%sGörüşmek üzere!%s\n", Gray, Reset)
 	return nil
 }
 
@@ -99,22 +98,22 @@ func (r *REPL) handleCommand(ctx context.Context, cmdLine string) bool {
 
 	case "/new", "/reset":
 		r.client.ResetSession()
-		fmt.Printf("%s Yangi chat sessiyasi boshlandi.%s\n\n", Green, Reset)
+		fmt.Printf("%s Yeni sohbet oturumu başladı.%s\n\n", Green, Reset)
 		return false
 
 	case "/whoami", "/user":
 		profile, err := r.client.Auth().ValidateToken(ctx)
 		if err != nil {
-			fmt.Printf("%s Xatolik: %v%s\n\n", Red, err, Reset)
+			fmt.Printf("%s Hata: %v%s\n\n", Red, err, Reset)
 			return false
 		}
-		fmt.Printf("%s Akkaunt: ID=%s, Nickname=%s, Email=%s, Phone=%s%s\n\n",
+		fmt.Printf("%s Hesap: ID=%s, Takma ad=%s, E-posta=%s, Telefon=%s%s\n\n",
 			BrightCyan, profile.ID, profile.Nickname, profile.Email, profile.Phone, Reset)
 		return false
 
 	case "/model", "/m":
 		if len(parts) < 2 {
-			fmt.Printf("%s Hozirgi model: %s%s\n\n", Gray, r.model, Reset)
+			fmt.Printf("%s Geçerli model: %s%s\n\n", Gray, r.model, Reset)
 			return false
 		}
 		target := parts[1]
@@ -132,7 +131,7 @@ func (r *REPL) handleCommand(ctx context.Context, cmdLine string) bool {
 		r.model = cfg.ID
 		r.thinkingEnabled = cfg.ThinkingEnabled
 		r.searchEnabled = cfg.SearchEnabled
-		fmt.Printf("%s Model o'zgartirildi: %s%s\n\n", BrightGreen, r.model, Reset)
+		fmt.Printf("%s Model değiştirildi: %s%s\n\n", BrightGreen, r.model, Reset)
 		return false
 
 	case "/thinking", "/t":
@@ -141,7 +140,7 @@ func (r *REPL) handleCommand(ctx context.Context, cmdLine string) bool {
 		} else {
 			r.thinkingEnabled = !r.thinkingEnabled
 		}
-		fmt.Printf("%s Fikrlash (Thinking): %s%s\n\n", Gray, boolLabel(r.thinkingEnabled), Reset)
+		fmt.Printf("%s Akıl yürütme: %s%s\n\n", Gray, boolLabel(r.thinkingEnabled), Reset)
 		return false
 
 	case "/search", "/s":
@@ -150,30 +149,30 @@ func (r *REPL) handleCommand(ctx context.Context, cmdLine string) bool {
 		} else {
 			r.searchEnabled = !r.searchEnabled
 		}
-		fmt.Printf("%s Veb-qidiruv (Web Search): %s%s\n\n", Gray, boolLabel(r.searchEnabled), Reset)
+		fmt.Printf("%s Web araması: %s%s\n\n", Gray, boolLabel(r.searchEnabled), Reset)
 		return false
 
 	case "/help", "/h", "/?":
-		fmt.Println(`Buyruqlar ro'yxati:
-  /help                  - Ushbu yordam oynasini ko'rsatish
-  /new                   - Yangi suhbat boshlash (sessiyani tozalash)
-  /model <nomi>          - Modelni tanlash (r1, v3, deepseek-reasoner, deepseek-chat)
-  /thinking [on|off]     - Fikrlash jarayonini (R1 reasoning) yoqish/o'chirish
-  /search [on|off]       - Veb-qidiruvni yoqish/o'chirish
-  /whoami                - Akkaunt ma'lumotlarini ko'rish
-  /clear                 - Ekranni tozalash
-  /exit                  - Dasturdan chiqish`)
+		fmt.Println(`Komutlar:
+  /help                  - Bu yardım ekranını göster
+  /new                   - Yeni sohbet başlat (oturumu sıfırla)
+  /model <ad>            - Modeli seç (r1, v3, deepseek-reasoner, deepseek-chat)
+  /thinking [on|off]     - Akıl yürütmeyi aç veya kapat
+  /search [on|off]       - Web aramasını aç veya kapat
+  /whoami                - Hesap bilgilerini göster
+  /clear                 - Ekranı temizle
+  /exit                  - Programdan çık`)
 		fmt.Println()
 		return false
 
 	default:
-		fmt.Printf("%s Noma'lum buyruq: %s. /help orqali ro'yxatni ko'ring.%s\n\n", Yellow, cmd, Reset)
+		fmt.Printf("%s Bilinmeyen komut: %s. Komutları görmek için /help yazın.%s\n\n", Yellow, cmd, Reset)
 		return false
 	}
 }
 
-func (r *REPL) ask(ctx context.Context, prompt string) {
-	spinner := NewSpinner("DeepSeek PoW hisoblanmoqda va serverga ulanmoqda...")
+func (r *REPL) ask(ctx context.Context, prompt string) bool {
+	spinner := NewSpinner("DeepSeek PoW hesaplanıyor ve sunucuya bağlanılıyor...")
 	spinner.Start()
 
 	chunkCh, errCh := r.client.ChatStream(ctx, deepseek.ChatStreamRequest{
@@ -197,8 +196,8 @@ func (r *REPL) ask(ctx context.Context, prompt string) {
 			}
 			if err != nil {
 				spinner.Stop()
-				fmt.Printf("\n%s❌ Xatolik: %v%s\n", Red, err, Reset)
-				return
+				fmt.Printf("\n%s❌ Hata: %v%s\n", Red, err, Reset)
+				return false
 			}
 		case chunk, ok := <-chunkCh:
 			if !ok {
@@ -209,11 +208,12 @@ func (r *REPL) ask(ctx context.Context, prompt string) {
 				select {
 				case err := <-errCh:
 					if err != nil {
-						fmt.Printf("\n%s❌ Xatolik: %v%s\n", Red, err, Reset)
+						fmt.Printf("\n%s❌ Hata: %v%s\n", Red, err, Reset)
+						return false
 					}
 				default:
 				}
-				return
+				return true
 			}
 
 			if !hasStarted {
@@ -224,7 +224,7 @@ func (r *REPL) ask(ctx context.Context, prompt string) {
 			// Handle streaming reasoning
 			if chunk.ReasoningContent != "" {
 				if !hasThinkingHeader {
-					fmt.Printf("\n%s💭 Fikrlash jarayoni (Thinking):%s\n%s%s", Cyan, Reset, Gray, Italic)
+					fmt.Printf("\n%s💭 Akıl yürütme:%s\n%s%s", Cyan, Reset, Gray, Italic)
 					hasThinkingHeader = true
 					inThinking = true
 				}
@@ -249,9 +249,9 @@ func (r *REPL) ask(ctx context.Context, prompt string) {
 
 func boolLabel(b bool) string {
 	if b {
-		return fmt.Sprintf("%syoqilgan%s", BrightGreen, Reset)
+		return fmt.Sprintf("%saçık%s", BrightGreen, Reset)
 	}
-	return fmt.Sprintf("%so'chirilgan%s", Gray, Reset)
+	return fmt.Sprintf("%skapalı%s", Gray, Reset)
 }
 
 func parseBoolArg(s string) bool {

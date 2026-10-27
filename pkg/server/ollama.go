@@ -174,7 +174,7 @@ func getSupportedOllamaModels() []OllamaModelItem {
 // handleOllamaTags handles GET /api/tags
 func (s *Server) handleOllamaTags(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Bu HTTP yöntemine izin verilmiyor", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -229,7 +229,7 @@ func (s *Server) handleOllamaShow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := OllamaShowResponse{
-		Modelfile:  fmt.Sprintf("# Modelfile for %s (Emulated by Nexus)\nFROM %s\nPARAMETER temperature 0.7\n", modelName, modelName),
+		Modelfile:  fmt.Sprintf("# %s için model dosyası (Nexus tarafından benzetilir)\nFROM %s\nPARAMETER temperature 0.7\n", modelName, modelName),
 		Parameters: "temperature 0.7\nstop <|im_end|>\n",
 		Template:   "{{ if .System }}<|im_start|>system\n{{ .System }}<|im_end|>\n{{ end }}{{ if .Prompt }}<|im_start|>user\n{{ .Prompt }}<|im_end|>\n{{ end }}<|im_start|>assistant\n",
 		Details: OllamaModelDetails{
@@ -249,13 +249,13 @@ func (s *Server) handleOllamaShow(w http.ResponseWriter, r *http.Request) {
 // handleOllamaChat handles POST /api/chat
 func (s *Server) handleOllamaChat(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Bu HTTP yöntemine izin verilmiyor", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var req OllamaChatRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":"Invalid JSON: %s"}`, err.Error()), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf(`{"error":"JSON geçersiz: %s"}`, err.Error()), http.StatusBadRequest)
 		return
 	}
 
@@ -274,9 +274,9 @@ func (s *Server) handleOllamaChat(w http.ResponseWriter, r *http.Request) {
 			sysBuilder.WriteString(m.Content)
 			sysBuilder.WriteString("\n")
 		} else if strings.EqualFold(m.Role, "user") {
-			convBuilder.WriteString(fmt.Sprintf("User: %s\n\n", m.Content))
+			convBuilder.WriteString(fmt.Sprintf("Kullanıcı: %s\n\n", m.Content))
 		} else if strings.EqualFold(m.Role, "assistant") {
-			convBuilder.WriteString(fmt.Sprintf("Assistant: %s\n\n", m.Content))
+			convBuilder.WriteString(fmt.Sprintf("Asistan: %s\n\n", m.Content))
 		}
 	}
 
@@ -288,11 +288,11 @@ func (s *Server) handleOllamaChat(w http.ResponseWriter, r *http.Request) {
 	prompt := strings.TrimSpace(convBuilder.String())
 	sysPrompt := strings.TrimSpace(sysBuilder.String())
 	if sysPrompt != "" {
-		prompt = fmt.Sprintf("[Instructions]:\n%s\n\n%s", sysPrompt, prompt)
+		prompt = fmt.Sprintf("[Talimatlar]:\n%s\n\n%s", sysPrompt, prompt)
 	}
 
 	if prompt == "" {
-		http.Error(w, `{"error":"No prompt or messages provided"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"İstem veya ileti sağlanmadı"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -319,7 +319,7 @@ func (s *Server) handleOllamaChat(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Connection", "keep-alive")
 		flusher, ok := w.(http.Flusher)
 		if !ok {
-			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			http.Error(w, "Akış yanıtı desteklenmiyor", http.StatusInternalServerError)
 			return
 		}
 
@@ -475,13 +475,13 @@ func (s *Server) handleOllamaChat(w http.ResponseWriter, r *http.Request) {
 // handleOllamaGenerate handles POST /api/generate
 func (s *Server) handleOllamaGenerate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Bu HTTP yöntemine izin verilmiyor", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var req OllamaGenerateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":"Invalid JSON: %s"}`, err.Error()), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf(`{"error":"JSON geçersiz: %s"}`, err.Error()), http.StatusBadRequest)
 		return
 	}
 
@@ -497,11 +497,11 @@ func (s *Server) handleOllamaGenerate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if sysPrompt != "" {
-		prompt = fmt.Sprintf("[Instructions]:\n%s\n\nUser: %s", sysPrompt, prompt)
+		prompt = fmt.Sprintf("[Talimatlar]:\n%s\n\nKullanıcı: %s", sysPrompt, prompt)
 	}
 
 	if prompt == "" {
-		http.Error(w, `{"error":"No prompt provided"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"İstem sağlanmadı"}`, http.StatusBadRequest)
 		return
 	}
 
@@ -524,7 +524,7 @@ func (s *Server) handleOllamaGenerate(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Connection", "keep-alive")
 		flusher, ok := w.(http.Flusher)
 		if !ok {
-			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			http.Error(w, "Akış yanıtı desteklenmiyor", http.StatusInternalServerError)
 			return
 		}
 

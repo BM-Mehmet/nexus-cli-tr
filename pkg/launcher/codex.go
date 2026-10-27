@@ -20,10 +20,10 @@ func LaunchCodexDirect(ctx context.Context, opts Options) error {
 
 	codexBin, err := exec.LookPath("codex")
 	if err != nil {
-		fmt.Printf("\n%s❌ 'codex' (OpenAI Codex CLI) tizimda topilmadi.%s\n", cli.Red, cli.Reset)
-		fmt.Println("O'rnatish uchun quyidagilarni ko'rib chiqing:")
-		fmt.Printf("  %snpm install -g @openai/codex%s yoki rasmiy Codex CLI\n\n", cli.BrightCyan, cli.Reset)
-		return fmt.Errorf("codex binary not found in PATH")
+		fmt.Printf("\n%s❌ 'codex' (OpenAI Codex CLI) sistemde bulunamadı.%s\n", cli.Red, cli.Reset)
+		fmt.Println("Kurulum seçenekleri:")
+		fmt.Printf("  %snpm install -g @openai/codex%s veya resmi Codex CLI\n\n", cli.BrightCyan, cli.Reset)
+		return fmt.Errorf("codex çalıştırılabilir dosyası PATH içinde bulunamadı")
 	}
 
 	// Ensure ~/.codex/config.toml has nexus profile
@@ -59,9 +59,9 @@ wire_api = "responses"
 		}()
 	}
 
-	fmt.Printf("%s⚡ OpenAI Codex CLI ishga tushirilmoqda (DeepSeek R1 / V3 bilan)...%s\n", cli.BrightGreen, cli.Reset)
-	fmt.Printf("  Nexus API URL: http://localhost:%d/v1\n", opts.Port)
-	fmt.Printf("  Profile:       nexus\n\n")
+	fmt.Printf("%s⚡ OpenAI Codex CLI başlatılıyor (DeepSeek R1 / V3)...%s\n", cli.BrightGreen, cli.Reset)
+	fmt.Printf("  Nexus API adresi: http://localhost:%d/v1\n", opts.Port)
+	fmt.Printf("  Profil:        nexus\n\n")
 
 	// Pass config overrides matching Ollama codex integration
 	codexArgs := []string{

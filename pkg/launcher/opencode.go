@@ -30,11 +30,11 @@ func LaunchOpenCode(ctx context.Context, opts Options) error {
 	}
 
 	if opencodeBin == "" {
-		fmt.Printf("\n%s❌ 'opencode' CLI tizimda topilmadi.%s\n", cli.Red, cli.Reset)
-		fmt.Println("O'rnatish uchun quyidagi buyruqlardan birini bajaring:")
+		fmt.Printf("\n%s❌ 'opencode' CLI sistemde bulunamadı.%s\n", cli.Red, cli.Reset)
+		fmt.Println("Kurmak için şu komutlardan birini çalıştırın:")
 		fmt.Printf("  %scurl -fsSL https://opencode.ai/install | bash%s\n", cli.BrightCyan, cli.Reset)
-		fmt.Printf("  yoki: %snpm install -g opencode-ai%s\n\n", cli.BrightCyan, cli.Reset)
-		return fmt.Errorf("opencode binary not found")
+		fmt.Printf("  veya: %snpm install -g opencode-ai%s\n\n", cli.BrightCyan, cli.Reset)
+		return fmt.Errorf("opencode çalıştırılabilir dosyası bulunamadı")
 	}
 
 	srv, started, err := EnsureServer(ctx, opts.Port, opts.AccountsDir)
@@ -63,9 +63,9 @@ func LaunchOpenCode(ctx context.Context, opts Options) error {
 	}
 	configBytes, _ := json.Marshal(configObj)
 
-	fmt.Printf("%s⚡ OpenCode CLI ishga tushirilmoqda (DeepSeek R1 / V3 bilan)...%s\n", cli.BrightGreen, cli.Reset)
-	fmt.Printf("  Nexus API URL: http://localhost:%d/v1\n", opts.Port)
-	fmt.Printf("  Default Model: deepseek-reasoner\n\n")
+	fmt.Printf("%s⚡ OpenCode CLI başlatılıyor (DeepSeek R1 / V3)...%s\n", cli.BrightGreen, cli.Reset)
+	fmt.Printf("  Nexus API adresi: http://localhost:%d/v1\n", opts.Port)
+	fmt.Printf("  Varsayılan model: deepseek-reasoner\n\n")
 
 	cmd := exec.CommandContext(ctx, opencodeBin, opts.ExtraArgs...)
 	cmd.Stdin = os.Stdin

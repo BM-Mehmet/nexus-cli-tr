@@ -43,7 +43,7 @@ type ModelConfig struct {
 var ModelConfigs = map[string]ModelConfig{
 	ModelChat: {
 		ID:              ModelChat,
-		RealModel:       "DeepSeek-V3 Chat (Web Default)",
+		RealModel:       "DeepSeek-V3 Sohbet (Web varsayılanı)",
 		ModelType:       "default",
 		ThinkingEnabled: false,
 		SearchEnabled:   false,
@@ -52,7 +52,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelV3: {
 		ID:              ModelV3,
-		RealModel:       "DeepSeek-V3 Chat (Web Default)",
+		RealModel:       "DeepSeek-V3 Sohbet (Web varsayılanı)",
 		ModelType:       "default",
 		ThinkingEnabled: false,
 		SearchEnabled:   false,
@@ -61,7 +61,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelDefault: {
 		ID:              ModelDefault,
-		RealModel:       "DeepSeek-V3 Chat (Web Default)",
+		RealModel:       "DeepSeek-V3 Sohbet (Web varsayılanı)",
 		ModelType:       "default",
 		ThinkingEnabled: false,
 		SearchEnabled:   false,
@@ -70,7 +70,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelReasoner: {
 		ID:              ModelReasoner,
-		RealModel:       "DeepSeek-R1 Reasoner (Web Default + Thinking)",
+		RealModel:       "DeepSeek-R1 Akıl Yürütücü (Web varsayılanı + akıl yürütme)",
 		ModelType:       "default",
 		ThinkingEnabled: true,
 		SearchEnabled:   false,
@@ -79,7 +79,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelR1: {
 		ID:              ModelR1,
-		RealModel:       "DeepSeek-R1 Reasoner (Web Default + Thinking)",
+		RealModel:       "DeepSeek-R1 Akıl Yürütücü (Web varsayılanı + akıl yürütme)",
 		ModelType:       "default",
 		ThinkingEnabled: true,
 		SearchEnabled:   false,
@@ -88,7 +88,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelChatSearch: {
 		ID:              ModelChatSearch,
-		RealModel:       "DeepSeek-V3 Chat + Web Search",
+		RealModel:       "DeepSeek-V3 Sohbet + Web araması",
 		ModelType:       "default",
 		ThinkingEnabled: false,
 		SearchEnabled:   true,
@@ -97,7 +97,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelReasonerSearch: {
 		ID:              ModelReasonerSearch,
-		RealModel:       "DeepSeek-R1 Reasoner + Web Search",
+		RealModel:       "DeepSeek-R1 Akıl Yürütücü + Web araması",
 		ModelType:       "default",
 		ThinkingEnabled: true,
 		SearchEnabled:   true,
@@ -106,7 +106,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelR1Search: {
 		ID:              ModelR1Search,
-		RealModel:       "DeepSeek-R1 Reasoner + Web Search",
+		RealModel:       "DeepSeek-R1 Akıl Yürütücü + Web araması",
 		ModelType:       "default",
 		ThinkingEnabled: true,
 		SearchEnabled:   true,
@@ -115,7 +115,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelExpert: {
 		ID:              ModelExpert,
-		RealModel:       "DeepSeek Web Expert",
+		RealModel:       "DeepSeek Web Uzmanı",
 		ModelType:       "expert",
 		ThinkingEnabled: false,
 		SearchEnabled:   false,
@@ -124,7 +124,7 @@ var ModelConfigs = map[string]ModelConfig{
 	},
 	ModelV4Pro: {
 		ID:              ModelV4Pro,
-		RealModel:       "DeepSeek Web Expert + Thinking",
+		RealModel:       "DeepSeek Web Uzmanı + Akıl yürütme",
 		ModelType:       "expert",
 		ThinkingEnabled: true,
 		SearchEnabled:   false,

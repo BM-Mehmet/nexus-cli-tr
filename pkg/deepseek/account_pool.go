@@ -303,7 +303,7 @@ func (p *AccountPool) SwitchActive(name string) (*Account, error) {
 	}
 
 	if target == nil {
-		return nil, fmt.Errorf("akkaunt topilmadi: %s", name)
+		return nil, fmt.Errorf("hesap bulunamadı: %s", name)
 	}
 
 	defaultFile := p.defaultAuthPath
@@ -317,7 +317,7 @@ func (p *AccountPool) SwitchActive(name string) (*Account, error) {
 	}
 
 	if err := os.WriteFile(defaultFile, raw, 0600); err != nil {
-		return nil, fmt.Errorf("asosiy faylga yozishda xatolik: %w", err)
+		return nil, fmt.Errorf("birincil dosyaya yazılamadı: %w", err)
 	}
 
 	return target, nil

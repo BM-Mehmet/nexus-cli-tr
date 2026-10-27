@@ -59,7 +59,7 @@ func (p *StreamParser) Feed(line string) (*ChatChunk, error) {
 			if errMsg == "" {
 				errMsg = "server xatosi"
 			}
-			return nil, fmt.Errorf("DeepSeek xatoligi: %s", errMsg)
+			return nil, fmt.Errorf("DeepSeek hatası: %s", errMsg)
 		}
 		return nil, nil
 	case "title", "update_session", "close", "keep-alive":

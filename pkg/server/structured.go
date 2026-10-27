@@ -68,7 +68,7 @@ func CleanJSON(raw string) (string, error) {
 		}
 	}
 
-	return trimmed, fmt.Errorf("matndan to'g'ri JSON format topilmadi")
+	return trimmed, fmt.Errorf("metinde geçerli JSON biçimi bulunamadı")
 }
 
 // BuildJSONInstruction creates a strict system prompt instruction for JSON output.
@@ -83,26 +83,26 @@ func BuildJSONInstruction(formatRaw json.RawMessage) string {
 	}
 
 	var instruction strings.Builder
-	instruction.WriteString("\n[CRITICAL OUTPUT FORMAT REQUIREMENT]:\n")
-	instruction.WriteString("You MUST respond ONLY with valid JSON. Do NOT wrap your output in markdown code blocks like ```json ... ```.\n")
-	instruction.WriteString("Do NOT include any greetings, explanations, thoughts, or preamble outside the JSON object.\n")
+	instruction.WriteString("\n[ZORUNLU ÇIKTI BİÇİMİ]:\n")
+	instruction.WriteString("YALNIZCA geçerli JSON yanıtı verin. Çıktıyı ```json ... ``` gibi Markdown kod bloklarına almayın.\n")
+	instruction.WriteString("JSON nesnesinin dışında selamlama, açıklama, düşünce veya önsöz eklemeyin.\n")
 
 	// If formatRaw is literally "json"
 	if rawStr == `"json"` || rawStr == `json` {
-		instruction.WriteString("Output a valid JSON object or array representing your answer.\n")
+		instruction.WriteString("Yanıtınızı temsil eden geçerli bir JSON nesnesi veya dizisi üretin.\n")
 		return instruction.String()
 	}
 
 	// Check if format is a JSON Schema object
 	var schemaMap map[string]interface{}
 	if err := json.Unmarshal(formatRaw, &schemaMap); err == nil && len(schemaMap) > 0 {
-		instruction.WriteString("Your JSON output MUST conform strictly to the following JSON Schema:\n")
+		instruction.WriteString("JSON çıktınız aşağıdaki JSON Schema şemasına kesinlikle uymalıdır:\n")
 		schemaBytes, _ := json.MarshalIndent(schemaMap, "", "  ")
 		instruction.WriteString(string(schemaBytes))
 		instruction.WriteString("\n")
 		return instruction.String()
 	}
 
-	instruction.WriteString("Output pure valid JSON adhering to the user's requested structure.\n")
+	instruction.WriteString("Kullanıcının istediği yapıya uygun, yalnızca geçerli JSON üretin.\n")
 	return instruction.String()
 }

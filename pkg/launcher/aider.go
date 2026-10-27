@@ -18,10 +18,10 @@ func LaunchAider(ctx context.Context, opts Options) error {
 
 	aiderBin, err := exec.LookPath("aider")
 	if err != nil {
-		fmt.Printf("\n%s❌ 'aider' CLI tizimda topilmadi.%s\n", cli.Red, cli.Reset)
-		fmt.Println("O'rnatish uchun:")
+		fmt.Printf("\n%s❌ 'aider' CLI sistemde bulunamadı.%s\n", cli.Red, cli.Reset)
+		fmt.Println("Kurmak için:")
 		fmt.Printf("  %spip install aider-chat%s\n\n", cli.BrightCyan, cli.Reset)
-		return fmt.Errorf("aider binary not found in PATH")
+		return fmt.Errorf("aider çalıştırılabilir dosyası PATH içinde bulunamadı")
 	}
 
 	srv, started, err := EnsureServer(ctx, opts.Port, opts.AccountsDir)
@@ -36,9 +36,9 @@ func LaunchAider(ctx context.Context, opts Options) error {
 		}()
 	}
 
-	fmt.Printf("%s⚡ Aider pair-programming CLI ishga tushirilmoqda (DeepSeek R1 / V3 bilan)...%s\n", cli.BrightGreen, cli.Reset)
-	fmt.Printf("  OpenAI Base URL: http://localhost:%d/v1\n", opts.Port)
-	fmt.Printf("  Model:           openai/deepseek-reasoner\n\n")
+	fmt.Printf("%s⚡ Aider eşli programlama CLI başlatılıyor (DeepSeek R1 / V3)...%s\n", cli.BrightGreen, cli.Reset)
+	fmt.Printf("  OpenAI temel URL: http://localhost:%d/v1\n", opts.Port)
+	fmt.Printf("  Model:            openai/deepseek-reasoner\n\n")
 
 	args := []string{"--model", "openai/deepseek-reasoner"}
 	args = append(args, opts.ExtraArgs...)

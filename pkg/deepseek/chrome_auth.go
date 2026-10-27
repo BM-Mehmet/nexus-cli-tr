@@ -93,7 +93,7 @@ func ResolveChromePath() string {
 // LaunchAndExtract opens Chrome, navigates to chat.deepseek.com, and extracts auth tokens.
 func (h *ChromeAuthHelper) LaunchAndExtract(ctx context.Context, onWaitMessage func(string)) (*AuthData, error) {
 	if h.chromePath == "" {
-		return nil, errors.New("Google Chrome topilmadi. CHROME_PATH muhit o'zgaruvchisini o'rnating yoki Chrome brauzerini o'rnating")
+		return nil, errors.New("Google Chrome bulunamadı. CHROME_PATH ortam değişkenini ayarlayın veya Chrome'u yükleyin")
 	}
 
 	_ = os.MkdirAll(h.profileDir, 0755)
@@ -117,12 +117,12 @@ func (h *ChromeAuthHelper) LaunchAndExtract(ctx context.Context, onWaitMessage f
 
 		cmd := exec.Command(h.chromePath, args...)
 		if err := cmd.Start(); err != nil {
-			return nil, fmt.Errorf("Chrome ishga tushmadi: %w", err)
+			return nil, fmt.Errorf("Chrome başlatılamadı: %w", err)
 		}
 	}
 
 	if onWaitMessage != nil {
-		onWaitMessage("Chrome ochildi. Iltimos chat.deepseek.com sahifasiga kiring (Login qiling)...")
+		onWaitMessage("Chrome açıldı. Lütfen chat.deepseek.com adresine gidip oturum açın...")
 	}
 
 	// Wait for DevTools endpoint
@@ -139,7 +139,7 @@ func (h *ChromeAuthHelper) LaunchAndExtract(ctx context.Context, onWaitMessage f
 	// Connect to CDP WebSocket
 	cdp, err := newCDPClient(wsURL)
 	if err != nil {
-		return nil, fmt.Errorf("CDP ulanish xatosi: %w", err)
+		return nil, fmt.Errorf("CDP bağlantı hatası: %w", err)
 	}
 	defer cdp.Close()
 
@@ -148,7 +148,7 @@ func (h *ChromeAuthHelper) LaunchAndExtract(ctx context.Context, onWaitMessage f
 	_, _ = cdp.Send("Network.enable", nil)
 
 	if onWaitMessage != nil {
-		onWaitMessage("DeepSeek hisobingizga kiring. Tizim tokenni avtomatik tekshirmoqda...")
+		onWaitMessage("DeepSeek hesabınızda oturum açın. Belirteç otomatik olarak denetleniyor...")
 	}
 
 	ticker := time.NewTicker(2 * time.Second)
@@ -208,7 +208,7 @@ func (h *ChromeAuthHelper) waitForDevTools(ctx context.Context, endpoint string)
 			time.Sleep(300 * time.Millisecond)
 		}
 	}
-	return errors.New("Chrome DevTools ulanish portiga ulanib bo'lmadi")
+	return errors.New("Chrome DevTools bağlantı noktasına bağlanılamadı")
 }
 
 func (h *ChromeAuthHelper) findTargetWS(ctx context.Context) (string, error) {
@@ -243,7 +243,7 @@ func (h *ChromeAuthHelper) findTargetWS(ctx context.Context) (string, error) {
 		time.Sleep(300 * time.Millisecond)
 	}
 
-	return "", errors.New("Chrome sahifasi topilmadi")
+	return "", errors.New("Chrome sekmesi bulunamadı")
 }
 
 func (h *ChromeAuthHelper) extractAndValidate(ctx context.Context, cdp *cdpClient) (*AuthData, error) {
@@ -290,7 +290,7 @@ func (h *ChromeAuthHelper) extractAndValidate(ctx context.Context, cdp *cdpClien
 	}
 
 	if token == "" {
-		return nil, errors.New("token hali paydo bo'lmadi (login qilinmagan)")
+		return nil, errors.New("belirteç henüz alınmadı (oturum açılmamış)")
 	}
 
 	// 3. Fetch Cookies via Network.getAllCookies
@@ -321,7 +321,7 @@ func (h *ChromeAuthHelper) extractAndValidate(ctx context.Context, cdp *cdpClien
 
 	profile, err := authMgr.ValidateToken(ctx)
 	if err != nil || profile == nil {
-		return nil, fmt.Errorf("token serverda tasdiqlanmadi: %v", err)
+		return nil, fmt.Errorf("belirteç sunucuda doğrulanamadı: %v", err)
 	}
 
 	return &AuthData{
@@ -459,7 +459,7 @@ func (c *cdpClient) Send(method string, params map[string]interface{}) ([]byte, 
 		c.mu.Lock()
 		delete(c.awaits, id)
 		c.mu.Unlock()
-		return nil, errors.New("CDP timeout")
+		return nil, errors.New("CDP zaman aşımı")
 	}
 }
 

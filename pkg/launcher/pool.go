@@ -15,16 +15,16 @@ func LaunchPool(ctx context.Context, opts Options) error {
 	pool := deepseek.NewAccountPool(opts.AccountsDir)
 	accounts := pool.List()
 
-	fmt.Printf("\n%s%s=== NEXUS MULTI-ACCOUNT POOL MONITOR ===%s\n\n", cli.BrightCyan, cli.Bold, cli.Reset)
+	fmt.Printf("\n%s%s=== NEXUS ÇOKLU HESAP HAVUZU İZLEYİCİSİ ===%s\n\n", cli.BrightCyan, cli.Bold, cli.Reset)
 	if len(accounts) == 0 {
-		fmt.Println("Hovuzda faol akkauntlar topilmadi.")
-		fmt.Printf("Yangi akkaunt qo'shish uchun: %snexus auth add <nomi>%s\n\n", cli.BrightCyan, cli.Reset)
+		fmt.Println("Havuzda etkin hesap bulunamadı.")
+		fmt.Printf("Hesap eklemek için: %snexus auth add <ad>%s\n\n", cli.BrightCyan, cli.Reset)
 		return nil
 	}
 
 	activeName := pool.GetActiveAccountName()
-	fmt.Printf("Jami akkauntlar: %d ta | Birlamchi faol: %s%s%s\n\n", len(accounts), cli.BrightGreen, activeName, cli.Reset)
-	fmt.Printf("%-20s %-15s %-12s %-25s\n", "AKKAUNT", "HOLATI", "COOLDOWN", "EMAIL")
+	fmt.Printf("Toplam hesap: %d | Etkin birincil hesap: %s%s%s\n\n", len(accounts), cli.BrightGreen, activeName, cli.Reset)
+	fmt.Printf("%-20s %-15s %-12s %-25s\n", "HESAP", "DURUM", "BEKLEME", "E-POSTA")
 	fmt.Println(strings.Repeat("-", 75))
 
 	for _, acc := range accounts {
@@ -35,17 +35,17 @@ func LaunchPool(ctx context.Context, opts Options) error {
 			nameTag = fmt.Sprintf("  %s", acc.Name)
 		}
 
-		status := fmt.Sprintf("%s✅ Tayyor%s", cli.Green, cli.Reset)
+		status := fmt.Sprintf("%s✅ Hazır%s", cli.Green, cli.Reset)
 		cdSec := acc.CooldownRemaining()
 		cdStr := "-"
 		if cdSec > 0 {
-			status = fmt.Sprintf("%s⏳ Kutish%s", cli.Yellow, cli.Reset)
+			status = fmt.Sprintf("%s⏳ Bekliyor%s", cli.Yellow, cli.Reset)
 			cdStr = fmt.Sprintf("%ds", cdSec)
 		} else if !acc.IsReady() {
-			status = fmt.Sprintf("%s❌ Xato%s", cli.Red, cli.Reset)
+			status = fmt.Sprintf("%s❌ Hata%s", cli.Red, cli.Reset)
 		}
 
-		email := "Noma'lum"
+		email := "Bilinmiyor"
 		if acc.Profile != nil && acc.Profile.Email != "" {
 			email = acc.Profile.Email
 		}
@@ -53,10 +53,10 @@ func LaunchPool(ctx context.Context, opts Options) error {
 		fmt.Printf("%-20s %-15s %-12s %-25s\n", nameTag, status, cdStr, email)
 	}
 
-	fmt.Println("\nBuyruqlar:")
-	fmt.Println("  • nexus auth add <nomi>   - yangi hisob qo'shish")
-	fmt.Println("  • nexus auth test         - barcha hisoblarni tekshirish")
-	fmt.Println("  • nexus auth switch <nom> - faol akkauntni almashtirish")
+	fmt.Println("\nKomutlar:")
+	fmt.Println("  • nexus auth add <ad>     - hesap ekle")
+	fmt.Println("  • nexus auth test         - tüm hesapları doğrula")
+	fmt.Println("  • nexus auth switch <ad>  - etkin hesabı değiştir")
 	fmt.Println()
 
 	// If interactive monitoring is requested
