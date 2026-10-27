@@ -1,6 +1,6 @@
 # Nexus-CLI (DeepSeek Web Bridge for Golang) ⚡
 
-[English](README.md) | [Русский](README.ru.md) | [O'zbekcha](README.uz.md)
+[English](README.md) | [Türkçe](README.tr.md) | [Русский](README.ru.md) | [O'zbekcha](README.uz.md)
 
 ---
 
@@ -253,8 +253,6 @@ Avoid rate limits (HTTP 429) by cycling through multiple DeepSeek accounts using
 nexus-cli/
 ├── bin/
 │   └── nexus                     # Compiled binary executable
-├── cmd/
-│   └── nexus/main.go             # CLI command dispatcher
 ├── pkg/
 │   ├── deepseek/
 │   │   ├── pow.go                # Pure Go parallel DeepSeekHashV1 Keccak PoW solver
@@ -281,6 +279,7 @@ nexus-cli/
 ├── main.go                       # Application entry point
 ├── go.mod                        # Go module definition
 ├── README.md                     # Main documentation (English)
+├── README.tr.md                  # Turkish documentation (Türkçe)
 ├── README.ru.md                  # Russian documentation (Русский)
 └── README.uz.md                  # Uzbek documentation (O'zbekcha)
 ```
