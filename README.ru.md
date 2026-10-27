@@ -1,6 +1,6 @@
 # Nexus-CLI (DeepSeek Web Bridge for Golang) ⚡
 
-[English](README.md) | [Русский](README.ru.md) | [O'zbekcha](README.uz.md)
+[English](README.md) | [Türkçe](README.tr.md) | [Русский](README.ru.md) | [O'zbekcha](README.uz.md)
 
 ---
 
